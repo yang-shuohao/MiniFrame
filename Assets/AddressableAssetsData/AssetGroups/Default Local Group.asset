@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: 
+  m_GroupName: Default Local Group
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 220ef85f5ef5aa548b89ece8d9605b0f
+  m_SerializeEntries:
+  - m_GUID: 1143929cbc8e1fa4f8f2771b4cb37ffb
+    m_Address: Square
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f714d565359c4b445b7bd8b2b5b12d5b
+    m_Address: Triangle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 015512cf7337bb34bbff7b7264184a99
+    m_Address: Game Over
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f30878bb4ed098649bbf79e2175e081b
+    m_Address: You Win
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 0b736e9ccc7b0c146be7b2c72667fe4b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: e5506512540d6a149bb435aa0be98602, type: 2}
+    - {fileID: 11400000, guid: 6c18fe159c19eb14ca9185417a197e99, type: 2}

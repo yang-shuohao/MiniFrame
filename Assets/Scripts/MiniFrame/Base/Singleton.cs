@@ -7,30 +7,18 @@ using UnityEngine;
 /// <typeparam name="T"></typeparam>
 public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 {
-    public static T Instance { get; private set; }
-
-    protected virtual void Awake()
+    private static T instance;
+    public static T Instance
     {
-        Instance = this as T;
-    }
-}
-
-/// <summary>
-/// 继承MonoBehaviour的持久的单例抽象类
-/// </summary>
-/// <typeparam name="T"></typeparam>
-public abstract class MonoSingletonPersistent<T> : MonoSingleton<T> where T : MonoBehaviour
-{
-    protected override void Awake()
-    {
-        if (Instance != null)
+        get
         {
-            Destroy(gameObject);
-        }
-        else
-        {
-            DontDestroyOnLoad(gameObject);
-            base.Awake();
+            if(instance == null)
+            {
+                GameObject obj = new GameObject();
+                obj.name = typeof(T).ToString();
+                instance = obj.AddComponent<T>();
+            }
+            return instance;
         }
     }
 }

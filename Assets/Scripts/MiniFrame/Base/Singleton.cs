@@ -1,45 +1,68 @@
 
 using UnityEngine;
 
-/// <summary>
-/// 继承MonoBehaviour的非持久的单例抽象类
-/// </summary>
-/// <typeparam name="T"></typeparam>
-public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
+namespace MiniFrame.Base
 {
-    private static T instance;
-    public static T Instance
+    /// <summary>
+    /// 继承MonoBehaviour的持久的单例抽象类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
-        get
+        private static T instance;
+        public static T Instance
         {
-            if(instance == null)
+            get
             {
-                GameObject obj = new GameObject();
-                obj.name = typeof(T).ToString();
-                instance = obj.AddComponent<T>();
+                if (instance == null)
+                {
+                    var instance = FindObjectOfType<MonoSingleton<T>>();
+
+                    if (instance == null)
+                    {
+                        GameObject obj = new GameObject(typeof(T).ToString());
+                        instance = obj.AddComponent<MonoSingleton<T>>();
+
+                        DontDestroyOnLoad(obj);
+                    }
+                }
+                return instance;
             }
-            return instance;
         }
-    }
-}
 
-/// <summary>
-/// 不继承MonoBehaviour的单例抽象类
-/// </summary>
-/// <typeparam name="T"></typeparam>
-public abstract class Singleton<T> where T : new()
-{
-    private static T instance;
-
-    public static T Instance
-    {
-        get
+        protected virtual void Awake()
         {
             if (instance == null)
             {
-                instance = new T();
+                instance = GetComponent<T>();
+
+                DontDestroyOnLoad(this.gameObject);
             }
-            return instance;
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 不继承MonoBehaviour的单例抽象类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class Singleton<T> where T : new()
+    {
+        private static T instance;
+
+        public static T Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new T();
+                }
+                return instance;
+            }
         }
     }
 }

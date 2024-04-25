@@ -1,38 +1,43 @@
-using UnityEngine;
+using MiniFrame.Base;
+using MiniFrame.Event;
+using MiniFrame.Mono;
 
-/// <summary>
-/// 输入管理器
-/// </summary>
-public class InputManager : Singleton<InputManager>
+namespace MiniFrame.Input
 {
-    public bool IsEnableInput { get; set; }
-
-    public InputManager()
+    /// <summary>
+    /// 输入管理器
+    /// </summary>
+    public class InputManager : Singleton<InputManager>
     {
-        MonoManager.Instance.AddUpdateListener(Update);
-    }
+        public bool IsEnableInput { get; set; }
 
-    private void Update()
-    {
-        if(IsEnableInput)
+        public InputManager()
         {
-            CheckInput();
+            MonoManager.Instance.AddUpdateListener(Update);
         }
-    }
 
-    private void CheckInput()
-    {
-        if(Input.GetMouseButtonDown(0))
+        private void Update()
         {
-            EventManager.Instance.EventDispatcher("按下鼠标左键");
+            if (IsEnableInput)
+            {
+                CheckInput();
+            }
         }
-        else if(Input.GetMouseButton(0))
+
+        private void CheckInput()
         {
-            EventManager.Instance.EventDispatcher("按住鼠标左键");
-        }
-        else if(Input.GetMouseButtonUp(0))
-        {
-            EventManager.Instance.EventDispatcher("抬起鼠标左键");
+            if (UnityEngine.Input.GetMouseButtonDown(0))
+            {
+                EventManager.Instance.EventDispatcher("按下鼠标左键");
+            }
+            else if (UnityEngine.Input.GetMouseButton(0))
+            {
+                EventManager.Instance.EventDispatcher("按住鼠标左键");
+            }
+            else if (UnityEngine.Input.GetMouseButtonUp(0))
+            {
+                EventManager.Instance.EventDispatcher("抬起鼠标左键");
+            }
         }
     }
 }

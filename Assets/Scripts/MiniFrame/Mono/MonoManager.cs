@@ -1,26 +1,31 @@
 
+using MiniFrame.Base;
 using UnityEngine.Events;
 
 
-/// <summary>
-/// Mono管理器
-/// </summary>
-public class MonoManager : MonoSingleton<MonoManager>
+namespace MiniFrame.Mono
 {
-    private event UnityAction updateEvent;
-
-    private void Update()
+    /// <summary>
+    /// Mono管理器
+    /// </summary>
+    public class MonoManager : MonoSingleton<MonoManager>
     {
-        updateEvent?.Invoke();
-    }
+        private event UnityAction updateEvent;
 
-    public void AddUpdateListener(UnityAction action)
-    {
-        updateEvent += action;
-    }
+        private void Update()
+        {
+            updateEvent?.Invoke();
+        }
 
-    public void RemoveUpdateListener(UnityAction action)
-    {
-        updateEvent -= action;
+        public void AddUpdateListener(UnityAction action)
+        {
+            updateEvent += action;
+        }
+
+        public void RemoveUpdateListener(UnityAction action)
+        {
+            updateEvent -= action;
+        }
     }
 }
+

@@ -17,14 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 220ef85f5ef5aa548b89ece8d9605b0f
   m_SerializeEntries:
-  - m_GUID: 1143929cbc8e1fa4f8f2771b4cb37ffb
-    m_Address: Square
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: f714d565359c4b445b7bd8b2b5b12d5b
-    m_Address: Triangle
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: 015512cf7337bb34bbff7b7264184a99
     m_Address: Game Over
     m_ReadOnly: 0

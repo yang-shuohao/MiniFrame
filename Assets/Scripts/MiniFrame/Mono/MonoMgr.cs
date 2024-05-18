@@ -1,6 +1,7 @@
 
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Mono管理器
@@ -16,6 +17,24 @@ public class MonoMgr : Singleton<MonoMgr>
     {
         GameObject go = new GameObject("MonoController");
         monoController = go.AddComponent<MonoController>();
+    }
+
+    /// <summary>
+    /// 添加帧更新监听
+    /// </summary>
+    /// <param name="fun"></param>
+    public void AddUpdateListener(UnityAction fun)
+    {
+        monoController.AddUpdateListener(fun);
+    }
+
+    /// <summary>
+    /// 移除帧更新监听
+    /// </summary>
+    /// <param name="fun"></param>
+    public void RemoveUpdateListener(UnityAction fun)
+    {
+        monoController.RemoveUpdateListener(fun);
     }
 
     /// <summary>

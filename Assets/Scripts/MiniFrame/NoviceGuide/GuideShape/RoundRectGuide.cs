@@ -10,23 +10,17 @@ public class RoundRectGuide : GuideBase
     private float scaleRadius;
 
 
-    public override void SetMaterialParams(Vector3 center, float scaleTime, params float[] materialParams)
+    public override void SetMaterialParams(Vector3 center, Vector3[] targetCorners, float scaleTime, float scale)
     {
-        base.SetMaterialParams(center, scaleTime, materialParams);
+        base.SetMaterialParams(center, targetCorners, scaleTime, scale);
 
-        if (materialParams.Length == 6)
-        {
-            halfWidth = materialParams[0];
-            halfHeight = materialParams[1];
-            radius = materialParams[2];
-            scaleHalfWidth = materialParams[3];
-            scaleHalfHeight = materialParams[4];
-            scaleRadius = materialParams[5];
-        }
-        else
-        {
-            Debug.LogWarning("Expected exactly 6 parameters for materialParams.");
-        }
+        halfWidth = (targetCorners[3].x - targetCorners[0].x) / 2;
+        halfHeight = (targetCorners[1].y - targetCorners[0].y) / 2;
+        radius = halfHeight / 2;
+
+        scaleHalfWidth = scale * halfWidth;
+        scaleHalfHeight = scale * halfHeight;
+        scaleRadius = scale * radius;
 
         material.SetFloat("_SliderX", scaleHalfWidth);
         material.SetFloat("_SliderY", scaleHalfHeight);

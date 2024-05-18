@@ -6,19 +6,12 @@ public class CircleGuide : GuideBase
     private float radius;
     private float scaleRadius;
 
-    public override void SetMaterialParams(Vector3 center, float scaleTime, params float[] materialParams)
+    public override void SetMaterialParams(Vector3 center, Vector3[] targetCorners, float scaleTime, float scale)
     {
-        base.SetMaterialParams(center, scaleTime, materialParams);
+        base.SetMaterialParams(center, targetCorners, scaleTime, scale);
 
-        if (materialParams.Length == 2)
-        {
-            radius = materialParams[0];
-            scaleRadius = materialParams[1];
-        }
-        else
-        {
-            Debug.LogWarning("Expected exactly 2 parameters for materialParams.");
-        }
+        radius = (targetCorners[1].y - targetCorners[0].y) / 2;
+        scaleRadius = scale * radius;
 
         material.SetFloat("_Slider", scaleRadius);
     }

@@ -8,14 +8,16 @@ public class GuideBase : MonoBehaviour
 
     //缩放时间
     protected float scaleTime;
+    protected float scale;
 
     //计时器
     protected DurationTimer durationTimer;
 
-    public virtual void SetMaterialParams (Vector3 center, float scaleTime, params float[] materialParams)
+    public virtual void SetMaterialParams (Vector3 center, Vector3[] targetCorners, float scaleTime, float scale)
     {
         this.center = center;
         this.scaleTime = scaleTime;
+        this.scale = scale;
 
         material.SetVector("_Center", center);
 

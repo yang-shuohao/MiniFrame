@@ -66,31 +66,22 @@ public class GuideController : MonoBehaviour , ICanvasRaycastFilter
         center.x = targetCorners[0].x + (targetCorners[3].x - targetCorners[0].x) / 2;
         center.y = targetCorners[0].y + (targetCorners[1].y - targetCorners[0].y) / 2;
         center.z = 0f;
-        float halfWidth = (targetCorners[3].x - targetCorners[0].x) / 2;
-        float halfHeight = (targetCorners[1].y - targetCorners[0].y) / 2;
-        float radius = halfHeight;
-        float roundRectRadius = halfHeight / 2;
 
-        float scaleHalfWidth = scale * halfWidth;
-        float scaleHalfHeight = scale * halfHeight;
-        float scaleRadius = scale * radius;
-        float scaleRoundRectRadius = scale * roundRectRadius;
-
-        size = new Vector2(halfWidth * 2, halfHeight * 2);
+        size = new Vector2(targetCorners[3].x - targetCorners[0].x, targetCorners[1].y - targetCorners[0].y);
 
         switch(guideType)
         {
             case GuideType.Rect:
                 mask.material = rectGuide.material;
-                rectGuide.SetMaterialParams(center, scaleTime, halfWidth, halfHeight, scaleHalfWidth, scaleHalfHeight);
+                rectGuide.SetMaterialParams(center, targetCorners, scaleTime, scale);
                 break;
             case GuideType.Circle:
                 mask.material = circleGuide.material;
-                circleGuide.SetMaterialParams(center, scaleTime, radius, scaleRadius);
+                circleGuide.SetMaterialParams(center, targetCorners, scaleTime, scale);
                 break;
             case GuideType.RoundRect:
                 mask.material = roundRectGuide.material;
-                roundRectGuide.SetMaterialParams(center, scaleTime, halfWidth, halfHeight, roundRectRadius, scaleHalfWidth, scaleHalfHeight, scaleRoundRectRadius);
+                roundRectGuide.SetMaterialParams(center, targetCorners, scaleTime, scale);
                 break;
         }
     }

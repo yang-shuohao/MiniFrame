@@ -9,8 +9,6 @@ public class Attack3State : IState
 
     private UnityAction<int> callBack;
 
-    private AnimatorStateInfo stateInfo;
-
     public Attack3State(Animator animator, PlayerStateController playerStateController, UnityAction<int> callBack)
     {
         this.animator = animator;
@@ -23,8 +21,6 @@ public class Attack3State : IState
     public void OnEnter()
     {
         animator.SetInteger(PlayerAnimatorParam.stateIndex, (int)StateType.Attack3);
-
-        stateInfo = animator.GetCurrentAnimatorStateInfo(0);
     }
 
     public void OnExit()
@@ -35,7 +31,7 @@ public class Attack3State : IState
     public void OnUpdate()
     {
         //判断动画是否播放结束
-        if (stateInfo.IsName("Attack3") && stateInfo.normalizedTime >= 1.0f)
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Attack3") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
         {
             callBack((int)StateType.Idle);
         }

@@ -9,8 +9,6 @@ public class Attack2State : IState
 
     private UnityAction<int> callBack;
 
-    private AnimatorStateInfo stateInfo;
-
     public Attack2State(Animator animator, PlayerStateController playerStateController, UnityAction<int> callBack)
     {
         this.animator = animator;
@@ -24,8 +22,6 @@ public class Attack2State : IState
     {
         animator.SetInteger(PlayerAnimatorParam.stateIndex, (int)StateType.Attack2);
 
-        stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
         playerStateController.IsCombo = false;
     }
 
@@ -37,18 +33,18 @@ public class Attack2State : IState
     public void OnUpdate()
     {
         //判断动画是否播放结束
-        if (stateInfo.IsName("Attack2"))
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Attack2"))
         {
-            if (stateInfo.normalizedTime >= 1.0f)
-            {
-                playerStateController.IsAttacking = false;
-                callBack((int)StateType.Idle);
-            }
-            else
+            if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
             {
                 if (playerStateController.IsCombo)
                 {
                     callBack((int)StateType.Attack3);
+                }
+                else
+                {
+                    playerStateController.IsAttacking = false;
+                    callBack((int)StateType.Idle);
                 }
             }
         }

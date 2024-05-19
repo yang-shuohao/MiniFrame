@@ -1,3 +1,4 @@
+using UnityEngine;
 
 /// <summary>
 /// 输入管理器
@@ -8,7 +9,7 @@ public class InputMgr : Singleton<InputMgr>
 
     public InputMgr()
     {
-        EventMgr.Instance.AddEventListener(MonoEventName.Update, Update);
+        MonoMgr.Instance.AddUpdateListener(Update);
     }
 
     private void Update()
@@ -21,17 +22,35 @@ public class InputMgr : Singleton<InputMgr>
 
     private void CheckInput()
     {
-        if (UnityEngine.Input.GetMouseButtonDown(0))
+        //水平轴
+        EventMgr.Instance.EventDispatcher(InputEventName.Horizontal, Input.GetAxisRaw("Horizontal"));
+        //垂直轴
+        EventMgr.Instance.EventDispatcher(InputEventName.Vertical, Input.GetAxisRaw("Vertical"));
+
+        //按键
+        CheckKeyCode(KeyCode.W);
+        CheckKeyCode(KeyCode.S);
+        CheckKeyCode(KeyCode.A);
+        CheckKeyCode(KeyCode.D);
+
+    }
+
+    private void CheckKeyCode(KeyCode keyCode)
+    {
+        if (Input.GetKeyDown(keyCode))
         {
-            EventMgr.Instance.EventDispatcher("按下鼠标左键");
+            EventMgr.Instance.EventDispatcher(InputEventName.KeyDown, keyCode);
         }
-        else if (UnityEngine.Input.GetMouseButton(0))
+
+        if (Input.GetKeyUp(keyCode))
         {
-            EventMgr.Instance.EventDispatcher("按住鼠标左键");
+            EventMgr.Instance.EventDispatcher(InputEventName.KeyUp, keyCode);
         }
-        else if (UnityEngine.Input.GetMouseButtonUp(0))
+
+        if (Input.GetKey(keyCode))
         {
-            EventMgr.Instance.EventDispatcher("抬起鼠标左键");
+            EventMgr.Instance.EventDispatcher(InputEventName.KeyHold, keyCode);
         }
     }
 }
+

@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// Json数据管理器
 /// </summary>
-public class DataMgr : Singleton<DataMgr>
+public class JsonDataMgr : Singleton<JsonDataMgr>
 {
     /// <summary>
     /// 保存数据

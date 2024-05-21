@@ -203,7 +203,7 @@ public class ExcelTool
     /// <returns></returns>
     private static DataRow GetVariableNameRow(DataTable table)
     {
-        return table.Rows[1];
+        return table.Rows[0];
     }
 
     /// <summary>
@@ -213,7 +213,7 @@ public class ExcelTool
     /// <returns></returns>
     private static DataRow GetVariableTypeRow(DataTable table)
     {
-        return table.Rows[2];
+        return table.Rows[1];
     }
 
     

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-public class JsonUtil
+public class JsonUtils
 {
     /// <summary>
     /// 判断json串是否包含相应的key

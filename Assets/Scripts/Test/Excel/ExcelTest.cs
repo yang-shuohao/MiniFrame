@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class ExcelTest : MonoBehaviour
 {
+    private void OnEnable()
+    {
+        Debug.LogWarning(1);
+    }
+
     private void Start()
     {
         BinaryDataMgr.Instance.LoadTable<PlayerInfoContainer, PlayerInfo>();

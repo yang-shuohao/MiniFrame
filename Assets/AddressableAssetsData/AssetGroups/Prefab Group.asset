@@ -21,6 +21,14 @@ MonoBehaviour:
     m_Address: RedPoint
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 1143929cbc8e1fa4f8f2771b4cb37ffb
+    m_Address: Square
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cf3a4f5ad0807ea4496cf13490b46b5e
+    m_Address: Canvas
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 0b736e9ccc7b0c146be7b2c72667fe4b, type: 2}
   m_SchemaSet:

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Sprite Group
+  m_EditorClassIdentifier: 
+  m_GroupName: Sprite Group
+  m_Data:
+    m_SerializedData: []
+  m_GUID: ea8dde6a9320084468c51ec86938b0dc
+  m_SerializeEntries:
+  - m_GUID: 605eb1bef623d044dbf7adffb1b6c084
+    m_Address: fighter_climb_0039
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a44612ff28a54ce41a2e19a4c74ce3d8
+    m_Address: fighter_Idle_0001
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 075c09ae93346f54aa2d0038f4dfac9f
+    m_Address: fighter_jump_0043
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 0b736e9ccc7b0c146be7b2c72667fe4b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 21868642545a2f64cbe441c76bf2b03c, type: 2}
+    - {fileID: 11400000, guid: a586d38bf680e4a4282eb9b5f8364efc, type: 2}

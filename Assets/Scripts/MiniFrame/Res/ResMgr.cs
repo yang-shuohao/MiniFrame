@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -24,6 +25,7 @@ public class AddressablesInfo
 /// </summary>
 public class ResMgr : Singleton<ResMgr>
 {
+    #region Addressable
     //保存所有加载的资产
     public Dictionary<string, AddressablesInfo> assetDic = new Dictionary<string, AddressablesInfo>();
 
@@ -109,4 +111,40 @@ public class ResMgr : Singleton<ResMgr>
             }
         }
     }
+    #endregion
+
+    #region Resources
+    // 通用的异步加载方法
+    public void LoadAsync<T>(string path, Action<T> callBack) where T : UnityEngine.Object
+    {
+        MonoMgr.Instance.StartCoroutine(LoadResourceCoroutine(path, callBack));
+    }
+
+    // 协程方法，用于异步加载资源
+    private IEnumerator LoadResourceCoroutine<T>(string path, Action<T> callBack) where T : UnityEngine.Object
+    {
+        // 开始异步加载资源
+        ResourceRequest resourceRequest = Resources.LoadAsync<T>(path);
+
+        // 等待加载完成
+        yield return resourceRequest;
+
+        // 加载完成后获取资源
+        T loadedResource = resourceRequest.asset as T;
+
+        // 调用回调函数
+        if (callBack != null)
+        {
+            callBack(loadedResource);
+        }
+    }
+
+    // 通用的同步加载方法
+    public T Load<T>(string path) where T : UnityEngine.Object
+    {
+        // 同步加载资源
+        T loadedResource = Resources.Load<T>(path);
+        return loadedResource;
+    }
+    #endregion
 }

@@ -1,8 +1,5 @@
 public static class ResNames
 {
-    public static readonly string Square_prefab = "Square";
-    public static readonly string Game_Over_wav = "Game Over";
-    public static readonly string You_Win_wav = "You Win";
-    public static readonly string Canvas_prefab = "Canvas";
-    public static readonly string RedPoint_prefab = "RedPoint";
+    public static readonly string DOTweenSettings_asset = "DOTweenSettings";
+    public static readonly string Triangle_prefab = "Prefabs/Triangle";
 }

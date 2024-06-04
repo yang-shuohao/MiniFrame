@@ -35,9 +35,9 @@ public class UIMgr : Singleton<UIMgr>
     public UIMgr()
     {
         //创建Canvas 让其过场景的时候 不被移除
-        ResMgr.Instance.LoadAssetAsync<GameObject>("Canvas", (handle) =>
+        ResMgr.Instance.LoadAssetAsync<GameObject>("Canvas", ResMgr.Instance.resLoadType, (res) =>
         {
-            GameObject go = GameObject.Instantiate(handle.Result);
+            GameObject go = GameObject.Instantiate(res);
             canvas = go.transform as RectTransform;
             GameObject.DontDestroyOnLoad(go);
         });
@@ -91,9 +91,9 @@ public class UIMgr : Singleton<UIMgr>
         else
         {
 
-            ResMgr.Instance.LoadAssetAsync<GameObject>(panelName, (handle) =>
+            ResMgr.Instance.LoadAssetAsync<GameObject>(panelName, ResMgr.Instance.resLoadType, (res) =>
             {
-                GameObject obj = GameObject.Instantiate(handle.Result);
+                GameObject obj = GameObject.Instantiate(res);
 
                 //设置面板父物体
                 Transform father = bot;

@@ -63,9 +63,9 @@ public class AudioMgr : Singleton<AudioMgr>
 
         PoolMgr.Instance.GetFromPool<AudioSource>("SFXSource", (audioSource) =>
         {
-            ResMgr.Instance.LoadAssetAsync<AudioClip>(name, (handle) =>
+            ResMgr.Instance.LoadAssetAsync<AudioClip>(name, ResMgr.Instance.resLoadType, (res) =>
             {
-                audioSource.clip = handle.Result;
+                audioSource.clip = res;
                 audioSource.volume = 1;
                 audioSource.Play();
                 sfxSource.Add(audioSource);
@@ -85,9 +85,9 @@ public class AudioMgr : Singleton<AudioMgr>
             bgSource = go.AddComponent<AudioSource>();
         }
 
-        ResMgr.Instance.LoadAssetAsync<AudioClip>(name, (handle) =>
+        ResMgr.Instance.LoadAssetAsync<AudioClip>(name, ResMgr.Instance.resLoadType, (res) =>
         {
-            bgSource.clip = handle.Result;
+            bgSource.clip = res;
             bgSource.loop = true;
             bgSource.volume = 1;
             bgSource.Play();

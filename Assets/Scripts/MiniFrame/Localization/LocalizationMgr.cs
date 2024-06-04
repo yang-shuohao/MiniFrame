@@ -60,9 +60,9 @@ public class LocalizationMgr : Singleton<LocalizationMgr>
                 break;
         }
 
-        ResMgr.Instance.LoadAssetAsync<Sprite>(imagePath, (handle) =>
+        ResMgr.Instance.LoadAssetAsync<Sprite>(imagePath, ResMgr.Instance.resLoadType, (res) =>
         {
-            callBack?.Invoke(handle.Result);
+            callBack?.Invoke(res);
         });
     }
 }

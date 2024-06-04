@@ -77,9 +77,9 @@ public class PoolMgr : Singleton<PoolMgr>
         {
             //¥¥Ω®
             //º”‘ÿ
-            ResMgr.Instance.LoadAssetAsync<GameObject>(name, (handle) =>
+            ResMgr.Instance.LoadAssetAsync<GameObject>(name, ResMgr.Instance.resLoadType, (res) =>
             {
-                GameObject go = GameObject.Instantiate(handle.Result);
+                GameObject go = GameObject.Instantiate(res);
                 go.name = name;
 
                 callBack?.Invoke(go);

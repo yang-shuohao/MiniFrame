@@ -25,12 +25,20 @@ public class AddressablesInfo
 /// </summary>
 public class ResMgr : Singleton<ResMgr>
 {
+    //默认框架资源加载方式
+    public ResLoadType resLoadType;
+
+    public ResMgr()
+    {
+        resLoadType = ResLoadType.Addressables;
+    }
+
     #region Addressable
     //保存所有加载的资产
     public Dictionary<string, AddressablesInfo> assetDic = new Dictionary<string, AddressablesInfo>();
 
     //异步加载资源的方法
-    public void LoadAssetAsync<T>(string assetName, Action<AsyncOperationHandle<T>> callBack)
+    private void LoadAssetAsync<T>(string assetName, Action<T> callBack)
     {
         //由于存在同名 不同类型资源的区分加载
         //所以我们通过名字和类型拼接作为 key
@@ -47,7 +55,7 @@ public class ResMgr : Singleton<ResMgr>
             //判断 这个异步加载是否结束
             if (handle.IsDone)
             {
-                callBack(handle);
+                callBack(handle.Result);
             }
             else
             {
@@ -55,7 +63,7 @@ public class ResMgr : Singleton<ResMgr>
                 {
                     if (obj.Status == AsyncOperationStatus.Succeeded)
                     {
-                        callBack(obj);
+                        callBack(obj.Result);
                     }
                 };
             }
@@ -69,7 +77,7 @@ public class ResMgr : Singleton<ResMgr>
             {
                 if (obj.Status == AsyncOperationStatus.Succeeded)
                 {
-                    callBack(obj);
+                    callBack(obj.Result);
                 }
                 else
                 {
@@ -115,7 +123,7 @@ public class ResMgr : Singleton<ResMgr>
 
     #region Resources
     // 通用的异步加载方法
-    public void LoadAsync<T>(string path, Action<T> callBack) where T : UnityEngine.Object
+    private void LoadAsync<T>(string path, Action<T> callBack) where T : UnityEngine.Object
     {
         MonoMgr.Instance.StartCoroutine(LoadResourceCoroutine(path, callBack));
     }
@@ -147,4 +155,24 @@ public class ResMgr : Singleton<ResMgr>
         return loadedResource;
     }
     #endregion
+
+    /// <summary>
+    /// 资源异步加载
+    /// </summary>
+    /// <typeparam name="T">返回的资源数据</typeparam>
+    /// <param name="assetName">资产名/资产路径</param>
+    /// <param name="resLoadType">资产加载方式</param>
+    /// <param name="callBack">加载完后的回调</param>
+    public void LoadAssetAsync<T>(string assetName, ResLoadType resLoadType, Action<T> callBack) where T : UnityEngine.Object
+    {
+        switch (resLoadType)
+        {
+            case ResLoadType.Resources:
+                LoadAsync<T>(assetName, callBack);
+                break;
+            case ResLoadType.Addressables:
+                LoadAssetAsync<T>(assetName, callBack);
+                break;
+        }
+    }
 }

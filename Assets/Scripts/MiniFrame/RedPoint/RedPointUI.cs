@@ -56,11 +56,11 @@ public class RedPointUI : MonoBehaviour, IPointerClickHandler
     //Éú³Éºìµã
     private void SpawnRedPointObject()
     {
-        ResMgr.Instance.LoadAssetAsync<GameObject>("RedPoint", (handle) =>
+        ResMgr.Instance.LoadAssetAsync<GameObject>("RedPoint", ResMgr.Instance.resLoadType, (res) =>
         {
             if(redPointObject == null)
             {
-                redPointObject = Instantiate(handle.Result);
+                redPointObject = Instantiate(res);
                 redPointObject.transform.SetParent(this.transform);
 
                 Image image = redPointObject.GetComponent<Image>();

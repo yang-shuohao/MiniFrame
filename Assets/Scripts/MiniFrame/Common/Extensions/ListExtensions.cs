@@ -10,7 +10,7 @@ public static class ListExtensions
             throw new ArgumentNullException(nameof(list));
         }
 
-        if (index1 < 0 || index1 >= list.Count || index2 < 0 || index2 >= list.Count)
+        if (!IsValidIndex(list, index1) || !IsValidIndex(list, index2))
         {
             throw new ArgumentOutOfRangeException("Index is out of range.");
         }
@@ -21,5 +21,10 @@ public static class ListExtensions
             list[index1] = list[index2];
             list[index2] = temp;
         }
+    }
+
+    public static bool IsValidIndex<T>(this List<T> list, int index)
+    {
+        return index >= 0 && index < list.Count;
     }
 }

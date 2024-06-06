@@ -21,20 +21,6 @@ public static class TransformExtensions
         return null;
     }
 
-    // 找到顶级父类
-    public static Transform FindTopmostParent(this Transform currentTransform)
-    {
-        Transform topmostParent = currentTransform;
-
-        while (topmostParent.parent != null)
-        {
-            topmostParent = topmostParent.parent;
-        }
-
-        return topmostParent;
-    }
-
-
     //查找当前Transform的兄弟和父物体（直到最顶层）是否存在特定名字的物体
     public static Transform FindInHierarchy(this Transform current, string name)
     {

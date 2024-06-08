@@ -1,35 +1,36 @@
 using System;
 using System.Collections.Generic;
 
+
 /// <summary>
-/// List扩展
+/// 数组扩展
 /// </summary>
-public static class ListExtensions
+public static class ArrayExtensions
 {
     /// <summary>
     /// 交换指定两个索引的元素
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="list"></param>
+    /// <param name="array"></param>
     /// <param name="index1"></param>
     /// <param name="index2"></param>
-    public static void Swap<T>(this List<T> list, int index1, int index2)
+    public static void Swap<T>(this T[] array, int index1, int index2)
     {
-        if (list == null)
+        if (array == null)
         {
-            throw new ArgumentNullException(nameof(list));
+            throw new ArgumentNullException(nameof(array));
         }
 
-        if (!IsValidIndex(list, index1) || !IsValidIndex(list, index2))
+        if (!IsValidIndex(array, index1) || !IsValidIndex(array, index2))
         {
             throw new ArgumentOutOfRangeException("Index is out of range.");
         }
 
         if (index1 != index2)
         {
-            T temp = list[index1];
-            list[index1] = list[index2];
-            list[index2] = temp;
+            T temp = array[index1];
+            array[index1] = array[index2];
+            array[index2] = temp;
         }
     }
 
@@ -37,28 +38,28 @@ public static class ListExtensions
     /// 判断指定索引是否有效
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="list"></param>
+    /// <param name="array"></param>
     /// <param name="index"></param>
     /// <returns></returns>
-    public static bool IsValidIndex<T>(this List<T> list, int index)
+    public static bool IsValidIndex<T>(this T[] array, int index)
     {
-        return index >= 0 && index < list.Count;
+        return index >= 0 && index < array.Length;
     }
 
     /// <summary>
     /// 查找一个符合条件的元素
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="list"></param>
+    /// <param name="array"></param>
     /// <param name="condition"></param>
     /// <returns></returns>
-    public static T FindBy<T>(this List<T> list, Func<T,bool> condition)
+    public static T FindBy<T>(this T[] array, Func<T, bool> condition)
     {
-        for (int i = 0; i < list.Count; i++)
+        for (int i = 0; i < array.Length; i++)
         {
-            if(condition(list[i]))
+            if (condition(array[i]))
             {
-                return list[i];
+                return array[i];
             }
         }
 
@@ -69,17 +70,17 @@ public static class ListExtensions
     /// 查找所有符合条件的元素
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="list"></param>
+    /// <param name="array"></param>
     /// <param name="condition"></param>
     /// <returns></returns>
-    public static List<T> FindAllBy<T>(this List<T> list, Func<T, bool> condition)
+    public static List<T> FindAllBy<T>(this T[] array, Func<T, bool> condition)
     {
         List<T> result = new List<T>();
-        for (int i = 0; i < list.Count; i++)
+        for (int i = 0; i < array.Length; i++)
         {
-            if (condition(list[i]))
+            if (condition(array[i]))
             {
-                result.Add(list[i]);
+                result.Add(array[i]);
             }
         }
 
@@ -91,11 +92,11 @@ public static class ListExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="Q"></typeparam>
-    /// <param name="list"></param>
+    /// <param name="array"></param>
     /// <param name="condition"></param>
-    public static void OrderBy<T,Q>(this List<T> list, Func<T, Q> condition)
+    public static void OrderBy<T, Q>(this T[] array, Func<T, Q> condition)
     {
-        list.Sort((x, y) => Comparer<Q>.Default.Compare(condition(x), condition(y)));
+        Array.Sort(array, (x, y) => Comparer<Q>.Default.Compare(condition(x), condition(y)));
     }
 
     /// <summary>
@@ -103,11 +104,11 @@ public static class ListExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="Q"></typeparam>
-    /// <param name="list"></param>
+    /// <param name="array"></param>
     /// <param name="condition"></param>
-    public static void OrderByDescending<T, Q>(this List<T> list, Func<T, Q> condition)
+    public static void OrderByDescending<T, Q>(this T[] array, Func<T, Q> condition)
     {
-        list.Sort((x, y) => Comparer<Q>.Default.Compare(condition(y), condition(x)));
+        Array.Sort(array, (x, y) => Comparer<Q>.Default.Compare(condition(y), condition(x)));
     }
 
     /// <summary>
@@ -115,25 +116,25 @@ public static class ListExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="Q"></typeparam>
-    /// <param name="list"></param>
+    /// <param name="array"></param>
     /// <param name="selector"></param>
     /// <returns></returns>
-    public static T MaxBy<T, Q>(this List<T> list, Func<T, Q> selector)
+    public static T MaxBy<T, Q>(this T[] array, Func<T, Q> selector)
     {
-        if (list == null || list.Count == 0)
+        if (array == null || array.Length == 0)
         {
-            throw new ArgumentException("List is empty or null.");
+            throw new ArgumentException("Array is empty or null.");
         }
 
-        T maxElement = list[0];
+        T maxElement = array[0];
         Q maxValue = selector(maxElement);
 
-        for (int i = 1; i < list.Count; i++)
+        for (int i = 1; i < array.Length; i++)
         {
-            Q value = selector(list[i]);
+            Q value = selector(array[i]);
             if (Comparer<Q>.Default.Compare(value, maxValue) > 0)
             {
-                maxElement = list[i];
+                maxElement = array[i];
                 maxValue = value;
             }
         }
@@ -146,25 +147,25 @@ public static class ListExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="Q"></typeparam>
-    /// <param name="list"></param>
+    /// <param name="array"></param>
     /// <param name="selector"></param>
     /// <returns></returns>
-    public static T MinBy<T, Q>(this List<T> list, Func<T, Q> selector)
+    public static T MinBy<T, Q>(this T[] array, Func<T, Q> selector)
     {
-        if (list == null || list.Count == 0)
+        if (array == null || array.Length == 0)
         {
-            throw new ArgumentException("List is empty or null.");
+            throw new ArgumentException("Array is empty or null.");
         }
 
-        T minElement = list[0];
+        T minElement = array[0];
         Q minValue = selector(minElement);
 
-        for (int i = 1; i < list.Count; i++)
+        for (int i = 1; i < array.Length; i++)
         {
-            Q value = selector(list[i]);
+            Q value = selector(array[i]);
             if (Comparer<Q>.Default.Compare(value, minValue) < 0)
             {
-                minElement = list[i];
+                minElement = array[i];
                 minValue = value;
             }
         }

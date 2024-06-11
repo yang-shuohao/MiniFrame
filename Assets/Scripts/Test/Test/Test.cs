@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Test : MonoBehaviour
+public class TestEnumerable2 : MonoBehaviour
 {
     public RectTransform testRectTransform;
 

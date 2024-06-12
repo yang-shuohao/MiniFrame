@@ -5,7 +5,7 @@ using UnityEngine;
 /// 继承MonoBehaviour的持久的单例抽象类
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
+public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
     public static T Instance
@@ -14,12 +14,12 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             if (instance == null)
             {
-                var instance = FindObjectOfType<MonoSingleton<T>>();
+                instance = FindObjectOfType<T>();
 
                 if (instance == null)
                 {
-                    GameObject obj = new GameObject(typeof(T).ToString());
-                    instance = obj.AddComponent<MonoSingleton<T>>();
+                    GameObject obj = new GameObject(typeof(T).Name);
+                    instance = obj.AddComponent<T>();
 
                     DontDestroyOnLoad(obj);
                 }
@@ -32,7 +32,7 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         if (instance == null)
         {
-            instance = GetComponent<T>();
+            instance = this as T;
 
             DontDestroyOnLoad(this.gameObject);
         }
@@ -47,7 +47,7 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 /// 不继承MonoBehaviour的单例抽象类
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class Singleton<T> where T : new()
+public class Singleton<T> where T : new()
 {
     private static T instance;
 

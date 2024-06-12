@@ -1,9 +1,18 @@
-
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 public class GMCommandMgr : Singleton<GMCommandMgr>
 {
+    private Dictionary<string, string> commandDescriptions = new Dictionary<string, string>();
+
+    public GMCommandMgr()
+    {
+        // 初始化方法描述
+        commandDescriptions["AddLevel"] = "增加等级";
+        commandDescriptions["ChangeSpeed"] = "改变速度";
+    }
+
     /// <summary>
     /// 根据输入的字符串调用方法
     /// </summary>
@@ -68,6 +77,36 @@ public class GMCommandMgr : Singleton<GMCommandMgr>
         }
     }
 
+    /// <summary>
+    /// 获取匹配的命令
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public string[] GetMatchingCommands(string input)
+    {
+        List<string> matchingCommands = new List<string>();
+        MethodInfo[] methods = typeof(GMCommandMgr).GetMethods(BindingFlags.Instance | BindingFlags.Public);
+        foreach (MethodInfo method in methods)
+        {
+            if (method.Name.StartsWith(input, StringComparison.OrdinalIgnoreCase))
+            {
+                matchingCommands.Add(method.Name);
+            }
+        }
+        return matchingCommands.ToArray();
+    }
+
+    /// <summary>
+    /// 获取命令的描述
+    /// </summary>
+    /// <param name="command"></param>
+    /// <returns></returns>
+    public string GetCommandDescription(string command)
+    {
+        return commandDescriptions.TryGetValue(command, out var description) ? description : "No description available.";
+    }
+
+
     #region GM命令
 
     public void AddLevel(int level)
@@ -79,6 +118,8 @@ public class GMCommandMgr : Singleton<GMCommandMgr>
     {
         LogMgr.Instance.Log($"ChangeSpeed called with speed: {speed}");
     }
+
+    // 添加更多 GM 命令
 
     #endregion
 }

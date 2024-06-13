@@ -118,37 +118,36 @@ public class LogMgr : MonoSingleton<LogMgr>
     {
         if (errorMessageSB != null && errorMessageSB.Length > 0)
         {
-            GUIStyle style = new GUIStyle(GUI.skin.box);
-            style.wordWrap = true;
-            style.fontSize = 30;
-            style.alignment = TextAnchor.UpperLeft;
-            style.normal.textColor = Color.red;
+            // 设置窗口的矩形区域
+            Rect windowRect = new Rect(10, 10, Screen.width - 20, Screen.height - 20);
 
-            float boxWidth = Screen.width * 0.8f; // 框的宽度为屏幕宽度的80%
-            float boxHeight = Screen.height * 0.8f; // 框的高度为屏幕高度的80%
-            float x = (Screen.width - boxWidth) * 0.5f;
-            float y = (Screen.height - boxHeight) * 0.5f;
+            // 开始窗口绘制
+            GUILayout.BeginArea(windowRect, GUI.skin.window);
 
-            Rect scrollViewRect = new Rect(x, y, boxWidth, boxHeight);
-
-            // 获取文本的实际高度
-            GUIStyle labelStyle = new GUIStyle(style);
-            float contentHeight = labelStyle.CalcHeight(new GUIContent(errorMessageSB.ToString()), boxWidth * 0.9f);
-
-            Rect contentRect = new Rect(0, 0, boxWidth * 0.9f, contentHeight); // 这里设置内容大小以决定是否可以滚动
-
-            scrollPosition = GUI.BeginScrollView(scrollViewRect, scrollPosition, contentRect);
-            GUI.Box(new Rect(0, 0, contentRect.width, contentRect.height), errorMessageSB.ToString(), style);
-            GUI.EndScrollView();
-
-            // 显示关闭按钮
-            float buttonWidth = 250f;
-            float buttonHeight = 125f;
-            if (GUI.Button(new Rect(Screen.width * 0.5f - buttonWidth * 0.5f, Screen.height - buttonHeight, buttonWidth, buttonHeight), "Close"))
+            // 最上面中间显示日志标题
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("日志", GUILayout.Height(20));
+            GUILayout.FlexibleSpace();
+            // 最右上角显示关闭按钮
+            if (GUILayout.Button("关闭", GUILayout.Width(100), GUILayout.Height(40))) // 设置按钮大小为原来的两倍
             {
-                errorMessageSB = null;
+                errorMessageSB.Clear();
             }
+            GUILayout.EndHorizontal();
+
+            // 显示日志内容并添加垂直滚动条
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(windowRect.width - 20), GUILayout.Height(windowRect.height - 60));
+            GUIStyle logStyle = new GUIStyle(GUI.skin.label);
+            logStyle.normal.textColor = Color.red; // 设置文本颜色为红色
+            logStyle.fontSize = 20;
+            GUILayout.Label(errorMessageSB.ToString(), logStyle);
+            GUILayout.EndScrollView();
+
+            // 结束窗口绘制
+            GUILayout.EndArea();
         }
+
     }
 
     /// <summary>

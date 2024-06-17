@@ -16,7 +16,7 @@ public class ResTool
         string targetFolder = "Assets/GameRes";
 
         // 脚本保存路径
-        string scriptFolder = "Assets/Scripts/MiniFrame/Res";
+        string scriptFolder = "Assets/Scripts/MiniFrame/Constants";
         string scriptPath = Path.Combine(scriptFolder, "AAResNames.cs");
 
         // 创建脚本文件夹，如果不存在
@@ -79,7 +79,7 @@ public class ResTool
         string targetFolder = "Assets/Resources";
 
         // 脚本保存路径
-        string scriptFolder = "Assets/Scripts/MiniFrame/Res";
+        string scriptFolder = "Assets/Scripts/MiniFrame/Constants";
         string scriptPath = Path.Combine(scriptFolder, "ResNames.cs");
 
         // 创建脚本文件夹，如果不存在

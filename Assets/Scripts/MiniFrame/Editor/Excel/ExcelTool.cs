@@ -130,71 +130,85 @@ public class ExcelTool
         AssetDatabase.Refresh();
     }
 
-
     /// <summary>
-    /// 生成excel2进制数据
+    /// 生成excel二进制数据
     /// </summary>
     /// <param name="table"></param>
     private static void GenerateExcelBinary(DataTable table)
     {
-        //没有路径创建路径
+        // 确保路径存在
         if (!Directory.Exists(BinaryDataMgr.Instance.DATA_BINARY_PATH))
         {
             Directory.CreateDirectory(BinaryDataMgr.Instance.DATA_BINARY_PATH);
         }
 
-        //创建一个2进制文件进行写入
-        using (FileStream fs = new FileStream(BinaryDataMgr.Instance.DATA_BINARY_PATH + table.TableName, FileMode.OpenOrCreate, FileAccess.Write))
-        {
-            //存储具体的excel对应的2进制信息
-            //1.先要存储我们需要写多少行的数据 方便我们读取
-            //-4的原因是因为 前面4行是配置规则 并不是我们需要记录的数据内容
-            fs.Write(BitConverter.GetBytes(table.Rows.Count - 4), 0, 4);
-            //2.存储主键的变量名
-            string keyName = GetVariableNameRow(table)[GetKeyIndex(table)].ToString();
-            byte[] bytes = Encoding.UTF8.GetBytes(keyName);
-            //存储字符串字节数组的长度
-            fs.Write(BitConverter.GetBytes(bytes.Length), 0, 4);
-            //存储字符串字节数组
-            fs.Write(bytes, 0, bytes.Length);
+        string filePath = Path.Combine(BinaryDataMgr.Instance.DATA_BINARY_PATH, table.TableName);
 
-            //遍历所有内容的行 进行2进制的写入
-            DataRow row;
-            //得到类型行 根据类型来决定应该如何写入数据
-            DataRow rowType = GetVariableTypeRow(table);
-            for (int i = BEGIN_INDEX; i < table.Rows.Count; i++)
+        // 创建一个二进制文件进行写入
+        using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write))
+        {
+            try
             {
-                //得到一行的数据
-                row = table.Rows[i];
-                for (int j = 0; j < table.Columns.Count; j++)
+                // 存储行数（排除前4行）
+                int dataRowCount = table.Rows.Count - 4;
+                if (dataRowCount < 0)
                 {
-                    switch (rowType[j].ToString())
+                    throw new InvalidOperationException("数据行数不足以生成二进制文件。");
+                }
+                fs.Write(BitConverter.GetBytes(dataRowCount), 0, 4);
+
+                // 存储主键的变量名
+                string keyName = GetVariableNameRow(table)[GetKeyIndex(table)].ToString();
+                byte[] keyNameBytes = Encoding.UTF8.GetBytes(keyName);
+                fs.Write(BitConverter.GetBytes(keyNameBytes.Length), 0, 4);
+                fs.Write(keyNameBytes, 0, keyNameBytes.Length);
+
+                // 得到类型行，根据类型写入数据
+                DataRow rowType = GetVariableTypeRow(table);
+                for (int i = BEGIN_INDEX; i < table.Rows.Count; i++)
+                {
+                    DataRow row = table.Rows[i];
+                    for (int j = 0; j < table.Columns.Count; j++)
                     {
-                        case "int":
-                            fs.Write(BitConverter.GetBytes(int.Parse(row[j].ToString())), 0, 4);
-                            break;
-                        case "float":
-                            fs.Write(BitConverter.GetBytes(float.Parse(row[j].ToString())), 0, 4);
-                            break;
-                        case "bool":
-                            fs.Write(BitConverter.GetBytes(bool.Parse(row[j].ToString())), 0, 1);
-                            break;
-                        case "string":
-                            bytes = Encoding.UTF8.GetBytes(row[j].ToString());
-                            //写入字符串字节数组的长度
-                            fs.Write(BitConverter.GetBytes(bytes.Length), 0, 4);
-                            //写入字符串字节数组
-                            fs.Write(bytes, 0, bytes.Length);
-                            break;
+                        string cellValue = row[j].ToString();
+                        switch (rowType[j].ToString())
+                        {
+                            case "int":
+                                if (int.TryParse(cellValue, out int intValue))
+                                {
+                                    fs.Write(BitConverter.GetBytes(intValue), 0, 4);
+                                }
+                                break;
+                            case "float":
+                                if (float.TryParse(cellValue, out float floatValue))
+                                {
+                                    fs.Write(BitConverter.GetBytes(floatValue), 0, 4);
+                                }
+                                break;
+                            case "bool":
+                                if (bool.TryParse(cellValue, out bool boolValue))
+                                {
+                                    fs.Write(BitConverter.GetBytes(boolValue), 0, 1);
+                                }
+                                break;
+                            case "string":
+                                byte[] stringBytes = Encoding.UTF8.GetBytes(cellValue);
+                                fs.Write(BitConverter.GetBytes(stringBytes.Length), 0, 4);
+                                fs.Write(stringBytes, 0, stringBytes.Length);
+                                break;
+                        }
                     }
                 }
             }
-
-            fs.Close();
+            catch (Exception ex)
+            {
+                Debug.LogError($"生成二进制文件时发生错误：{ex.Message}");
+            }
         }
 
         AssetDatabase.Refresh();
     }
+
 
     /// <summary>
     /// 获取变量名所在行
@@ -224,7 +238,7 @@ public class ExcelTool
     /// <returns></returns>
     private static int GetKeyIndex(DataTable table)
     {
-        DataRow row = table.Rows[3];
+        DataRow row = table.Rows[2];
         for (int i = 0; i < table.Columns.Count; i++)
         {
             if (row[i].ToString() == "key")

@@ -35,7 +35,7 @@ public class AudioMgr : Singleton<AudioMgr>
 
     public AudioMgr()
     {
-        EventMgr.Instance.AddEventListener(MonoEventName.Update, Update);
+        MonoMgr.Instance.AddUpdateListener(Update);
     }
 
     private void Update()

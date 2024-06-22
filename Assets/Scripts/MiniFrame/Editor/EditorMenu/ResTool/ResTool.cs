@@ -79,7 +79,7 @@ public class ResTool
         string targetFolder = "Assets/Resources";
 
         // 脚本保存路径
-        string scriptFolder = "Assets/Scripts/MiniFrame/Constants";
+        string scriptFolder = "Assets/Scripts/Constants";
         string scriptPath = Path.Combine(scriptFolder, "ResNames.cs");
 
         // 创建脚本文件夹，如果不存在

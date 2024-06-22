@@ -6,7 +6,7 @@ using UnityEditor;
 public class LayerTool
 {
     //½Å±¾±£´æÂ·¾¶
-    private static readonly string savFilePath = "Assets/Scripts/MiniFrame/Constants/Layers.cs";
+    private static readonly string savFilePath = "Assets/Scripts/Constants/Layers.cs";
 
     [MenuItem("Tools/Tag&LayerTool/GenerateLayers")]
     private static void GenerateLayers()

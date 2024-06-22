@@ -5,7 +5,7 @@ using System.Text;
 public class TagTool
 {
     //½Å±¾±£´æÂ·¾¶
-    private static readonly string savFilePath = "Assets/Scripts/MiniFrame/Constants/Tags.cs";
+    private static readonly string savFilePath = "Assets/Scripts/Constants/Tags.cs";
 
     [MenuItem("Tools/Tag&LayerTool/GenerateTags")]
     private static void GenerateTags()

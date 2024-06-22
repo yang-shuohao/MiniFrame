@@ -103,7 +103,7 @@ public class AudioMgr : Singleton<AudioMgr>
     }
 
     /// <summary>
-    /// Õ£÷π≤ø∑÷±≥æ∞“Ù¿÷
+    /// Õ£÷π≤•∑≈±≥æ∞“Ù¿÷
     /// </summary>
     public void StopBgMusic()
     {

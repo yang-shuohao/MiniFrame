@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
-
+using UnityEngine;
 
 /// <summary>
 /// 数组扩展
 /// </summary>
 public static class ArrayExtensions
 {
+    #region 一维数组
+
     /// <summary>
     /// 交换指定两个索引的元素
     /// </summary>
@@ -172,4 +174,35 @@ public static class ArrayExtensions
 
         return minElement;
     }
+
+    #endregion
+
+    #region 二维数组
+
+    /// <summary>
+    /// 判断指定索引是否有效
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    /// <returns></returns>
+    public static bool IsValidIndex<T>(T[,] array, int row, int col)
+    {
+        return row >= 0 && row < array.GetLength(0) && col >= 0 && col < array.GetLength(1);
+    }
+
+    /// <summary>
+    /// 判断指定索引是否有效
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="rowCol"></param>
+    /// <returns></returns>
+    public static bool IsValidIndex<T>(this T[,] array, Vector2Int rowCol)
+    {
+        return array.IsValidIndex(rowCol.x, rowCol.y);
+    }
+
+    #endregion
 }

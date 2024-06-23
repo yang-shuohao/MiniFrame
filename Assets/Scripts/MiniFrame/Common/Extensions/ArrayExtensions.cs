@@ -187,7 +187,7 @@ public static class ArrayExtensions
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <returns></returns>
-    public static bool IsValidIndex<T>(T[,] array, int row, int col)
+    public static bool IsValidIndex<T>(this T[,] array, int row, int col)
     {
         return row >= 0 && row < array.GetLength(0) && col >= 0 && col < array.GetLength(1);
     }

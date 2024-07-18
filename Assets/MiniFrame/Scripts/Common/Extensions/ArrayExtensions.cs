@@ -57,7 +57,8 @@ public static class ArrayExtensions
     /// <returns></returns>
     public static T FindBy<T>(this T[] array, Func<T, bool> condition)
     {
-        for (int i = 0; i < array.Length; i++)
+        int length = array.Length;
+        for (int i = 0; i < length; i++)
         {
             if (condition(array[i]))
             {
@@ -65,7 +66,7 @@ public static class ArrayExtensions
             }
         }
 
-        return default(T);
+        return default;
     }
 
     /// <summary>
@@ -78,7 +79,9 @@ public static class ArrayExtensions
     public static List<T> FindAllBy<T>(this T[] array, Func<T, bool> condition)
     {
         List<T> result = new List<T>();
-        for (int i = 0; i < array.Length; i++)
+
+        int length = array.Length;
+        for (int i = 0; i < length; i++)
         {
             if (condition(array[i]))
             {
@@ -175,6 +178,60 @@ public static class ArrayExtensions
         return minElement;
     }
 
+    /// <summary>
+    /// 对数组每个元素进行特定操作
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="action"></param>
+    public static void ForEachElement<T>(this T[] array, Action<T> action)
+    {
+        if (array == null) throw new ArgumentNullException(nameof(array));
+        if (action == null) throw new ArgumentNullException(nameof(action));
+
+        int length = array.Length;
+        for (int i = 0; i < length; i++)
+        {
+            action?.Invoke(array[i]);
+        }
+    }
+
+    /// <summary>
+    /// 对数组每个元素进行特定操作
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="action"></param>
+    public static void ForEachElement<T>(this T[] array, Action<int> action)
+    {
+        if (array == null) throw new ArgumentNullException(nameof(array));
+        if (action == null) throw new ArgumentNullException(nameof(action));
+
+        int length = array.Length;
+        for (int i = 0; i < length; i++)
+        {
+            action?.Invoke(i);
+        }
+    }
+
+    /// <summary>
+    /// 对数组每个元素进行特定操作
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="action"></param>
+    public static void ForEachElement<T>(this T[] array, Action<T, int> action)
+    {
+        if (array == null) throw new ArgumentNullException(nameof(array));
+        if (action == null) throw new ArgumentNullException(nameof(action));
+
+        int length = array.Length;
+        for (int i = 0; i < length; i++)
+        {
+            action?.Invoke(array[i], i);
+        }
+    }
+
     #endregion
 
     #region 二维数组
@@ -202,6 +259,146 @@ public static class ArrayExtensions
     public static bool IsValidIndex<T>(this T[,] array, Vector2Int rowCol)
     {
         return array.IsValidIndex(rowCol.x, rowCol.y);
+    }
+
+    /// <summary>
+    /// 对数组每个元素进行特定操作
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="action"></param>
+    public static void ForEachElement<T>(this T[,] array, Action<T> action)
+    {
+        if (array == null) throw new ArgumentNullException(nameof(array));
+        if (action == null) throw new ArgumentNullException(nameof(action));
+
+        int rowCount = array.GetLength(0);
+        int colCount = array.GetLength(1);
+
+        for (int row = 0; row < rowCount; row++)
+        {
+            for (int col = 0; col < colCount; col++)
+            {
+                action(array[row, col]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 对数组每个元素进行特定操作
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="action"></param>
+    public static void ForEachElement<T>(this T[,] array, Action<T, int, int> action)
+    {
+        if (array == null) throw new ArgumentNullException(nameof(array));
+        if (action == null) throw new ArgumentNullException(nameof(action));
+
+        int rowCount = array.GetLength(0);
+        int colCount = array.GetLength(1);
+
+        for (int row = 0; row < rowCount; row++)
+        {
+            for (int col = 0; col < colCount; col++)
+            {
+                action(array[row, col], row, col);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 对数组每个元素进行特定操作
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="action"></param>
+    public static void ForEachElement<T>(this T[,] array, Action<int, int> action)
+    {
+        if (array == null) throw new ArgumentNullException(nameof(array));
+        if (action == null) throw new ArgumentNullException(nameof(action));
+
+        int rowCount = array.GetLength(0);
+        int colCount = array.GetLength(1);
+
+        for (int row = 0; row < rowCount; row++)
+        {
+            for (int col = 0; col < colCount; col++)
+            {
+                action(row, col);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 根据元素找到行列索引
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="element"></param>
+    /// <returns></returns>
+    public static Vector2Int FindElementIndex<T>(this T[,] array, T element)
+    {
+        int rowCount = array.GetLength(0);
+        int colCount = array.GetLength(1);
+
+        for (int row = 0; row < rowCount; row++)
+        {
+            for (int col = 0; col < colCount; col++)
+            {
+                if (array[row, col].Equals(element))
+                {
+                    return new Vector2Int(row, col);
+                }
+            }
+        }
+
+        return Vector2Int.left;
+    }
+
+    /// <summary>
+    /// 判断是否包含某个元素
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="element"></param>
+    /// <returns></returns>
+    public static bool IsContains<T>(this T[,] array, T element)
+    {
+        int rowCount = array.GetLength(0);
+        int colCount = array.GetLength(1);
+
+        for (int row = 0; row < rowCount; row++)
+        {
+            for (int col = 0; col < colCount; col++)
+            {
+                if (array[row, col].Equals(element))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 拷贝
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array"></param>
+    /// <param name="sourceArray"></param>
+    public static void CopyFrom<T>(this T[,] array, T[,] sourceArray)
+    {
+        if (array.GetLength(0) != sourceArray.GetLength(0) || array.GetLength(1) != sourceArray.GetLength(1))
+        {
+            throw new ArgumentException("The dimensions of the source array and destination array must match.");
+        }
+
+        sourceArray.ForEachElement((element, row, col) =>
+        {
+            array[row, col] = element;
+        });
     }
 
     #endregion

@@ -1,10 +1,13 @@
 using System;
 using UnityEngine;
 
-public class CTest : MonoBehaviour
+namespace YSH.Framework
 {
-    private void Start()
+    public class CTest : MonoBehaviour
     {
-        GMGUIMgr.Instance.isShowGMUI = true;
+        private void Start()
+        {
+            GMGUIMgr.Instance.isShowGMUI = true;
+        }
     }
 }

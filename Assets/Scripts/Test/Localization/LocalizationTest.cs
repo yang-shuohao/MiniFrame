@@ -1,20 +1,25 @@
 using UnityEngine;
 
-public class LocalizationTest : MonoBehaviour
+namespace YSH.Framework
 {
-    private void Update()
+
+    public class LocalizationTest : MonoBehaviour
     {
-        if(Input.GetKeyDown(KeyCode.Alpha1))
+        private void Update()
         {
-            LocalizationMgr.Instance.ChangeLanguage(LanguageType.zh_CN);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            LocalizationMgr.Instance.ChangeLanguage(LanguageType.zh_TW);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            LocalizationMgr.Instance.ChangeLanguage(LanguageType.en_US);
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                LocalizationMgr.Instance.ChangeLanguage(LanguageType.zh_CN);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                LocalizationMgr.Instance.ChangeLanguage(LanguageType.zh_TW);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                LocalizationMgr.Instance.ChangeLanguage(LanguageType.en_US);
+            }
         }
     }
 }
+

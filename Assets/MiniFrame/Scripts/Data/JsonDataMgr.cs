@@ -2,49 +2,52 @@ using LitJson;
 using System.IO;
 using UnityEngine;
 
-
-/// <summary>
-/// Json数据管理器
-/// </summary>
-public class JsonDataMgr : Singleton<JsonDataMgr>
+namespace YSH.Framework
 {
-    /// <summary>
-    /// 保存数据
-    /// </summary>
-    /// <param name="data"></param>
-    /// <param name="fileName"></param>
-    public void SaveData(object data, string fileName)
-    {
-        string path = Application.persistentDataPath + "/" + fileName;
-
-        string jsonStr = JsonMapper.ToJson(data);
-
-        File.WriteAllText(path, jsonStr);
-    }
 
     /// <summary>
-    /// 加载数据
+    /// Json数据管理器
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
-    public T LoadData<T>(string fileName) where T : new()
+    public class JsonDataMgr : Singleton<JsonDataMgr>
     {
-        string path = Application.persistentDataPath + "/" + fileName;
-
-        if (File.Exists(path))
+        /// <summary>
+        /// 保存数据
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="fileName"></param>
+        public void SaveData(object data, string fileName)
         {
-            string jsonStr = File.ReadAllText(path);
+            string path = Application.persistentDataPath + "/" + fileName;
 
-            T data = default(T);
+            string jsonStr = JsonMapper.ToJson(data);
 
-            data = JsonMapper.ToObject<T>(jsonStr);
-
-            return data;
+            File.WriteAllText(path, jsonStr);
         }
-        else
+
+        /// <summary>
+        /// 加载数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public T LoadData<T>(string fileName) where T : new()
         {
-            return new T();
+            string path = Application.persistentDataPath + "/" + fileName;
+
+            if (File.Exists(path))
+            {
+                string jsonStr = File.ReadAllText(path);
+
+                T data = default(T);
+
+                data = JsonMapper.ToObject<T>(jsonStr);
+
+                return data;
+            }
+            else
+            {
+                return new T();
+            }
         }
     }
 }

@@ -2,67 +2,73 @@
 
 using UnityEngine;
 using UnityEngine.Events;
-/// <summary>
-/// 本地化管理器
-/// </summary>
-public class LocalizationMgr : Singleton<LocalizationMgr>
+
+namespace YSH.Framework
 {
-    private LanguageContainer languageContainer;
 
-    private LanguageType languageType;
-
-    private void InitLanguageContainer()
+    /// <summary>
+    /// 本地化管理器
+    /// </summary>
+    public class LocalizationMgr : Singleton<LocalizationMgr>
     {
-        BinaryDataMgr.Instance.LoadTable<LanguageContainer, Language>();
-        languageContainer = BinaryDataMgr.Instance.GetTable<LanguageContainer>();
-    }
+        private LanguageContainer languageContainer;
 
-    public void ChangeLanguage(LanguageType languageType)
-    {
-        this.languageType = languageType;
+        private LanguageType languageType;
 
-        if(languageContainer == null)
+        private void InitLanguageContainer()
         {
-            InitLanguageContainer();
+            BinaryDataMgr.Instance.LoadTable<LanguageContainer, Language>();
+            languageContainer = BinaryDataMgr.Instance.GetTable<LanguageContainer>();
         }
 
-        EventMgr.Instance.EventDispatcher(LocalizationEventName.ChangeLanguage);
-    }
-
-    public string GetLocalizedContent(int id)
-    {
-        switch (languageType)
+        public void ChangeLanguage(LanguageType languageType)
         {
-            case LanguageType.zh_CN:
-                return languageContainer.dataDic[id].zh_CN;
-            case LanguageType.zh_TW:
-                return languageContainer.dataDic[id].zh_TW;
-            case LanguageType.en_US:
-                return languageContainer.dataDic[id].en_US;
+            this.languageType = languageType;
+
+            if (languageContainer == null)
+            {
+                InitLanguageContainer();
+            }
+
+            EventMgr.Instance.EventDispatcher(LocalizationEventName.ChangeLanguage);
         }
 
-        return null;
-    }
-
-    public void GetLocalizedContent(int id, UnityAction<Sprite> callBack)
-    {
-        string imagePath = null;
-        switch (languageType)
+        public string GetLocalizedContent(int id)
         {
-            case LanguageType.zh_CN:
-                imagePath = languageContainer.dataDic[id].zh_CN;
-                break;
-            case LanguageType.zh_TW:
-                imagePath = languageContainer.dataDic[id].zh_TW;
-                break;
-            case LanguageType.en_US:
-                imagePath = languageContainer.dataDic[id].en_US;
-                break;
+            switch (languageType)
+            {
+                case LanguageType.zh_CN:
+                    return languageContainer.dataDic[id].zh_CN;
+                case LanguageType.zh_TW:
+                    return languageContainer.dataDic[id].zh_TW;
+                case LanguageType.en_US:
+                    return languageContainer.dataDic[id].en_US;
+            }
+
+            return null;
         }
 
-        ResMgr.Instance.LoadAssetAsync<Sprite>(imagePath, ResMgr.Instance.resLoadType, (res) =>
+        public void GetLocalizedContent(int id, UnityAction<Sprite> callBack)
         {
-            callBack?.Invoke(res);
-        });
+            string imagePath = null;
+            switch (languageType)
+            {
+                case LanguageType.zh_CN:
+                    imagePath = languageContainer.dataDic[id].zh_CN;
+                    break;
+                case LanguageType.zh_TW:
+                    imagePath = languageContainer.dataDic[id].zh_TW;
+                    break;
+                case LanguageType.en_US:
+                    imagePath = languageContainer.dataDic[id].en_US;
+                    break;
+            }
+
+            ResMgr.Instance.LoadAssetAsync<Sprite>(imagePath, ResMgr.Instance.resLoadType, (res) =>
+            {
+                callBack?.Invoke(res);
+            });
+        }
     }
+
 }

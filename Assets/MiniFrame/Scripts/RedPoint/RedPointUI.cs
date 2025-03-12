@@ -3,90 +3,95 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class RedPointUI : MonoBehaviour, IPointerClickHandler
+namespace YSH.Framework
 {
-    //路径
-    public string Path;
 
-    //文本
-    private TMP_Text redPointNumText;
-
-    //红点
-    private GameObject redPointObject;
-
-
-    void Start()
+    public class RedPointUI : MonoBehaviour, IPointerClickHandler
     {
-        redPointNumText = GetComponentInChildren<TMP_Text>();
-        redPointNumText.text = null;
+        //路径
+        public string Path;
 
-        TreeNode node = RedPointMgr.Instance.AddListener(Path, RedPointCallback);
-        gameObject.name = node.FullPath;
-    }
+        //文本
+        private TMP_Text redPointNumText;
 
-    private void RedPointCallback(int value)
-    {
-        redPointNumText.text = value.ToString();
+        //红点
+        private GameObject redPointObject;
 
-        if (value > 0)
+
+        void Start()
         {
-            //创建显示红点
-            if (redPointObject == null)
+            redPointNumText = GetComponentInChildren<TMP_Text>();
+            redPointNumText.text = null;
+
+            TreeNode node = RedPointMgr.Instance.AddListener(Path, RedPointCallback);
+            gameObject.name = node.FullPath;
+        }
+
+        private void RedPointCallback(int value)
+        {
+            redPointNumText.text = value.ToString();
+
+            if (value > 0)
             {
-                SpawnRedPointObject();
+                //创建显示红点
+                if (redPointObject == null)
+                {
+                    SpawnRedPointObject();
+                }
+                else
+                {
+                    if (!redPointObject.activeSelf)
+                    {
+                        redPointObject.SetActive(true);
+                    }
+                }
             }
             else
             {
-                if (!redPointObject.activeSelf)
+                //隐藏红点
+                if (redPointObject != null)
                 {
-                    redPointObject.SetActive(true);
+                    Destroy(redPointObject);
                 }
             }
         }
-        else
+
+        //生成红点
+        private void SpawnRedPointObject()
         {
-            //隐藏红点
-            if (redPointObject != null)
+            ResMgr.Instance.LoadAssetAsync<GameObject>("RedPoint", ResMgr.Instance.resLoadType, (res) =>
             {
-                Destroy(redPointObject);
-            }
-        }
-    }
+                if (redPointObject == null)
+                {
+                    redPointObject = Instantiate(res);
+                    redPointObject.transform.SetParent(this.transform);
 
-    //生成红点
-    private void SpawnRedPointObject()
-    {
-        ResMgr.Instance.LoadAssetAsync<GameObject>("RedPoint", ResMgr.Instance.resLoadType, (res) =>
+                    Image image = redPointObject.GetComponent<Image>();
+
+                    RectTransform redPointRectTransform = redPointObject.GetComponent<RectTransform>();
+                    redPointRectTransform.anchoredPosition = Vector2.zero;
+                    redPointRectTransform.sizeDelta = new Vector2(image.sprite.texture.width, image.sprite.texture.height);
+                    redPointRectTransform.anchorMin = Vector2.one;
+                    redPointRectTransform.anchorMax = Vector2.one;
+                    redPointRectTransform.localScale = Vector3.one;
+                }
+
+            });
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
         {
-            if(redPointObject == null)
+            int value = RedPointMgr.Instance.GetValue(Path);
+
+            if (eventData.button == PointerEventData.InputButton.Left)
             {
-                redPointObject = Instantiate(res);
-                redPointObject.transform.SetParent(this.transform);
-
-                Image image = redPointObject.GetComponent<Image>();
-
-                RectTransform redPointRectTransform = redPointObject.GetComponent<RectTransform>();
-                redPointRectTransform.anchoredPosition = Vector2.zero;
-                redPointRectTransform.sizeDelta = new Vector2(image.sprite.texture.width, image.sprite.texture.height);
-                redPointRectTransform.anchorMin = Vector2.one;
-                redPointRectTransform.anchorMax = Vector2.one;
-                redPointRectTransform.localScale = Vector3.one;
+                RedPointMgr.Instance.ChangeValue(Path, value + 1);
             }
-
-        });
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        int value = RedPointMgr.Instance.GetValue(Path);
-
-        if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            RedPointMgr.Instance.ChangeValue(Path, value + 1);
-        }
-        else if (eventData.button == PointerEventData.InputButton.Right)
-        {
-            RedPointMgr.Instance.ChangeValue(Path, Mathf.Clamp(value - 1, 0, value));
+            else if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                RedPointMgr.Instance.ChangeValue(Path, Mathf.Clamp(value - 1, 0, value));
+            }
         }
     }
 }
+

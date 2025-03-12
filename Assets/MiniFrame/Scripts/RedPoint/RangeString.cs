@@ -1,105 +1,110 @@
 using System;
 
-/// <summary>
-/// 范围字符串
-/// 表示在Source字符串中，从StartIndex到EndIndex范围的字符构成的字符串
-/// </summary>
-public struct RangeString : IEquatable<RangeString>
+namespace YSH.Framework
 {
-    /// <summary>
-    /// 源字符串
-    /// </summary>
-    private string sourceStr;
 
     /// <summary>
-    /// 开始索引
+    /// 范围字符串
+    /// 表示在Source字符串中，从StartIndex到EndIndex范围的字符构成的字符串
     /// </summary>
-    private int startIndex;
-
-    /// <summary>
-    /// 结束范围
-    /// </summary>
-    private int endIndex;
-
-    /// <summary>
-    /// 长度
-    /// </summary>
-    private int length;
-
-    /// <summary>
-    /// 源字符串是否为Null或Empty
-    /// </summary>
-    private bool isSourceNullOrEmpty;
-
-    /// <summary>
-    /// 哈希码
-    /// </summary>
-    private int hashCode;
-
-
-    public RangeString(string source, int startIndex, int endIndex)
+    public struct RangeString : IEquatable<RangeString>
     {
-        sourceStr = source;
-        this.startIndex = startIndex;
-        this.endIndex = endIndex;
-        length = endIndex - startIndex + 1;
-        isSourceNullOrEmpty = string.IsNullOrEmpty(source);
-        hashCode = 0;
-    }
+        /// <summary>
+        /// 源字符串
+        /// </summary>
+        private string sourceStr;
 
-    public bool Equals(RangeString other)
-    {
+        /// <summary>
+        /// 开始索引
+        /// </summary>
+        private int startIndex;
 
-        bool isOtherNullOrEmpty = string.IsNullOrEmpty(other.sourceStr);
+        /// <summary>
+        /// 结束范围
+        /// </summary>
+        private int endIndex;
 
-        if (isSourceNullOrEmpty && isOtherNullOrEmpty)
+        /// <summary>
+        /// 长度
+        /// </summary>
+        private int length;
+
+        /// <summary>
+        /// 源字符串是否为Null或Empty
+        /// </summary>
+        private bool isSourceNullOrEmpty;
+
+        /// <summary>
+        /// 哈希码
+        /// </summary>
+        private int hashCode;
+
+
+        public RangeString(string source, int startIndex, int endIndex)
         {
-            return true;
+            sourceStr = source;
+            this.startIndex = startIndex;
+            this.endIndex = endIndex;
+            length = endIndex - startIndex + 1;
+            isSourceNullOrEmpty = string.IsNullOrEmpty(source);
+            hashCode = 0;
         }
 
-        if (isSourceNullOrEmpty || isOtherNullOrEmpty)
+        public bool Equals(RangeString other)
         {
-            return false;
-        }
 
-        if (length != other.length)
-        {
-            return false;
-        }
+            bool isOtherNullOrEmpty = string.IsNullOrEmpty(other.sourceStr);
 
-        for (int i = startIndex, j = other.startIndex; i <= endIndex; i++, j++)
-        {
-            if (sourceStr[i] != other.sourceStr[j])
+            if (isSourceNullOrEmpty && isOtherNullOrEmpty)
+            {
+                return true;
+            }
+
+            if (isSourceNullOrEmpty || isOtherNullOrEmpty)
             {
                 return false;
             }
+
+            if (length != other.length)
+            {
+                return false;
+            }
+
+            for (int i = startIndex, j = other.startIndex; i <= endIndex; i++, j++)
+            {
+                if (sourceStr[i] != other.sourceStr[j])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        return true;
-    }
-
-    public override int GetHashCode()
-    {
-        if (hashCode == 0 && !isSourceNullOrEmpty)
+        public override int GetHashCode()
         {
+            if (hashCode == 0 && !isSourceNullOrEmpty)
+            {
+                for (int i = startIndex; i <= endIndex; i++)
+                {
+                    hashCode = 31 * hashCode + sourceStr[i];
+                }
+            }
+
+            return hashCode;
+        }
+
+        public override string ToString()
+        {
+            RedPointMgr.Instance.CachedSb.Clear();
             for (int i = startIndex; i <= endIndex; i++)
             {
-                hashCode = 31 * hashCode + sourceStr[i];
+                RedPointMgr.Instance.CachedSb.Append(sourceStr[i]);
             }
+            string str = RedPointMgr.Instance.CachedSb.ToString();
+
+            return str;
         }
-
-        return hashCode;
-    }
-
-    public override string ToString()
-    {
-        RedPointMgr.Instance.CachedSb.Clear();
-        for (int i = startIndex; i <= endIndex; i++)
-        {
-            RedPointMgr.Instance.CachedSb.Append(sourceStr[i]);
-        }
-        string str = RedPointMgr.Instance.CachedSb.ToString();
-
-        return str;
     }
 }
+

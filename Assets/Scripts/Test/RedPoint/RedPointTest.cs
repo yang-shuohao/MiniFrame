@@ -1,11 +1,14 @@
 
 using UnityEngine;
 
-public class RedPointTest : MonoBehaviour
+namespace YSH.Framework
 {
-
-    void Update()
+    public class RedPointTest : MonoBehaviour
     {
-        RedPointMgr.Instance.Update();
+
+        void Update()
+        {
+            RedPointMgr.Instance.Update();
+        }
     }
 }

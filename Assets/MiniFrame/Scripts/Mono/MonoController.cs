@@ -1,25 +1,31 @@
 
 
 using UnityEngine.Events;
-/// <summary>
-/// Mono控制器，提供Update和协程功能
-/// </summary>
-public class MonoController : MonoSingleton<MonoController>
+
+namespace YSH.Framework
 {
-    private event UnityAction updateEvent;
 
-    private void Update()
+    /// <summary>
+    /// Mono控制器，提供Update和协程功能
+    /// </summary>
+    public class MonoController : MonoSingleton<MonoController>
     {
-        updateEvent?.Invoke();
-    }
+        private event UnityAction updateEvent;
 
-    public void AddUpdateListener(UnityAction fun)
-    {
-        updateEvent += fun;
-    }
+        private void Update()
+        {
+            updateEvent?.Invoke();
+        }
 
-    public void RemoveUpdateListener(UnityAction fun)
-    {
-        updateEvent -= fun;
+        public void AddUpdateListener(UnityAction fun)
+        {
+            updateEvent += fun;
+        }
+
+        public void RemoveUpdateListener(UnityAction fun)
+        {
+            updateEvent -= fun;
+        }
     }
 }
+

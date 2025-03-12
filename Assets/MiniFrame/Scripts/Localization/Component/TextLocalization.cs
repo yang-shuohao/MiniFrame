@@ -1,20 +1,24 @@
 using TMPro;
 using UnityEngine;
 
-
-[DisallowMultipleComponent]
-[RequireComponent(typeof(TMP_Text))]
-public class TextLocalization : LocalizationComponent
+namespace YSH.Framework
 {
-    private TMP_Text contentText;
-
-    private void Awake()
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(TMP_Text))]
+    public class TextLocalization : LocalizationComponent
     {
-        contentText = GetComponent<TMP_Text>();
-    }
+        private TMP_Text contentText;
 
-    protected override void ChangeLanguage()
-    {
-        contentText.text = LocalizationMgr.Instance.GetLocalizedContent(id);
+        private void Awake()
+        {
+            contentText = GetComponent<TMP_Text>();
+        }
+
+        protected override void ChangeLanguage()
+        {
+            contentText.text = LocalizationMgr.Instance.GetLocalizedContent(id);
+        }
     }
 }
+
+

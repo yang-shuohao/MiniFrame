@@ -1,22 +1,27 @@
 using UnityEngine;
 
-public class LocalizationComponent : MonoBehaviour
+namespace YSH.Framework
 {
-    [Header("Excel表中对应ID")]
-    [SerializeField] protected int id;
 
-    protected virtual void Start()
+    public class LocalizationComponent : MonoBehaviour
     {
-        EventMgr.Instance.AddEventListener(LocalizationEventName.ChangeLanguage, ChangeLanguage);
-    }
+        [Header("Excel表中对应ID")]
+        [SerializeField] protected int id;
 
-    protected virtual void OnDestroy()
-    {
-        EventMgr.Instance.RemoveEventListener(LocalizationEventName.ChangeLanguage, ChangeLanguage);
-    }
+        protected virtual void Start()
+        {
+            EventMgr.Instance.AddEventListener(LocalizationEventName.ChangeLanguage, ChangeLanguage);
+        }
 
-    protected virtual void ChangeLanguage()
-    {
-      
+        protected virtual void OnDestroy()
+        {
+            EventMgr.Instance.RemoveEventListener(LocalizationEventName.ChangeLanguage, ChangeLanguage);
+        }
+
+        protected virtual void ChangeLanguage()
+        {
+
+        }
     }
 }
+

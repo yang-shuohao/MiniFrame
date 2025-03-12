@@ -1,24 +1,29 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[DisallowMultipleComponent]
-[RequireComponent(typeof(Image))]
-public class ImageLocalization : LocalizationComponent
+namespace YSH.Framework
 {
-    private Image contentIMage;
 
-    private void Awake()
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(Image))]
+    public class ImageLocalization : LocalizationComponent
     {
-        contentIMage = GetComponent<Image>();
-    }
+        private Image contentIMage;
 
-    protected override void ChangeLanguage()
-    {
-        LocalizationMgr.Instance.GetLocalizedContent(id, UpdateImage);
-    }
+        private void Awake()
+        {
+            contentIMage = GetComponent<Image>();
+        }
 
-    private void UpdateImage(Sprite sprite)
-    {
-        contentIMage.sprite = sprite;
+        protected override void ChangeLanguage()
+        {
+            LocalizationMgr.Instance.GetLocalizedContent(id, UpdateImage);
+        }
+
+        private void UpdateImage(Sprite sprite)
+        {
+            contentIMage.sprite = sprite;
+        }
     }
 }
+

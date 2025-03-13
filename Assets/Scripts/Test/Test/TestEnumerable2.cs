@@ -11,16 +11,9 @@ public class TestEnumerable2 : MonoBehaviour
     {
          if(Input.GetKeyDown(KeyCode.Space))
         {
-            TestMono.Instance.Test();
-            Destroy(gameObject);
+            new TestMono();
         }
     }
 
-    private void OnDestroy()
-    {
-        if(TestMono.IsExisted)
-        {
-            TestMono.Instance.Test();
-        }
-    }
+
 }

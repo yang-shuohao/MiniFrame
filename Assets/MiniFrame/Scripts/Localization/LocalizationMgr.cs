@@ -30,7 +30,7 @@ namespace YSH.Framework
                 InitLanguageContainer();
             }
 
-            EventMgr.Instance.EventDispatcher(LocalizationEventName.ChangeLanguage);
+            EventMgr.Instance.Dispatcher(LocalizationEventName.ChangeLanguage);
         }
 
         public string GetLocalizedContent(int id)

@@ -52,7 +52,7 @@ namespace YSH.Framework
     {
         private Dictionary<string, IEventInfo> eventDic = new Dictionary<string, IEventInfo>();
 
-        public void AddEventListener(string name, UnityAction action)
+        public void AddListener(string name, UnityAction action)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -64,7 +64,7 @@ namespace YSH.Framework
             }
         }
 
-        public void AddEventListener<T>(string name, UnityAction<T> action)
+        public void AddListener<T>(string name, UnityAction<T> action)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -76,7 +76,7 @@ namespace YSH.Framework
             }
         }
 
-        public void AddEventListener<T1, T2>(string name, UnityAction<T1, T2> action)
+        public void AddListener<T1, T2>(string name, UnityAction<T1, T2> action)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -88,7 +88,7 @@ namespace YSH.Framework
             }
         }
 
-        public void AddEventListener<T1, T2, T3>(string name, UnityAction<T1, T2, T3> action)
+        public void AddListener<T1, T2, T3>(string name, UnityAction<T1, T2, T3> action)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -100,7 +100,7 @@ namespace YSH.Framework
             }
         }
 
-        public void RemoveEventListener(string name, UnityAction action)
+        public void RemoveListener(string name, UnityAction action)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -108,7 +108,7 @@ namespace YSH.Framework
             }
         }
 
-        public void RemoveEventListener<T>(string name, UnityAction<T> action)
+        public void RemoveListener<T>(string name, UnityAction<T> action)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -116,7 +116,7 @@ namespace YSH.Framework
             }
         }
 
-        public void RemoveEventListener<T1,T2>(string name, UnityAction<T1, T2> action)
+        public void RemoveListener<T1,T2>(string name, UnityAction<T1, T2> action)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -124,7 +124,7 @@ namespace YSH.Framework
             }
         }
 
-        public void RemoveEventListener<T1, T2, T3>(string name, UnityAction<T1, T2, T3> action)
+        public void RemoveListener<T1, T2, T3>(string name, UnityAction<T1, T2, T3> action)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -132,7 +132,7 @@ namespace YSH.Framework
             }
         }
 
-        public void EventDispatcher(string name)
+        public void Dispatcher(string name)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -140,7 +140,7 @@ namespace YSH.Framework
             }
         }
 
-        public void EventDispatcher<T>(string name, T param)
+        public void Dispatcher<T>(string name, T param)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -148,7 +148,7 @@ namespace YSH.Framework
             }
         }
 
-        public void EventDispatcher<T1,T2>(string name, T1 param1, T2 param2)
+        public void Dispatcher<T1,T2>(string name, T1 param1, T2 param2)
         {
             if (eventDic.ContainsKey(name))
             {
@@ -156,7 +156,7 @@ namespace YSH.Framework
             }
         }
 
-        public void EventDispatcher<T1, T2, T3>(string name, T1 param1, T2 param2, T3 param3)
+        public void Dispatcher<T1, T2, T3>(string name, T1 param1, T2 param2, T3 param3)
         {
             if (eventDic.ContainsKey(name))
             {

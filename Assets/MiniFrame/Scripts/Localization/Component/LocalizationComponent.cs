@@ -10,12 +10,12 @@ namespace YSH.Framework
 
         protected virtual void Start()
         {
-            EventMgr.Instance.AddEventListener(LocalizationEventName.ChangeLanguage, ChangeLanguage);
+            EventMgr.Instance.AddListener(LocalizationEventName.ChangeLanguage, ChangeLanguage);
         }
 
         protected virtual void OnDestroy()
         {
-            EventMgr.Instance.RemoveEventListener(LocalizationEventName.ChangeLanguage, ChangeLanguage);
+            EventMgr.Instance.RemoveListener(LocalizationEventName.ChangeLanguage, ChangeLanguage);
         }
 
         protected virtual void ChangeLanguage()

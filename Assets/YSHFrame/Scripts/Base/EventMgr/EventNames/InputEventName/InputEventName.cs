@@ -4,9 +4,30 @@
 /// </summary>
 public static class InputEventName
 {
+    //Öá
     public const string Horizontal = "Horizontal";
     public const string Vertical = "Vertical";
-    public const string KeyDown = "KeyDown";
-    public const string KeyUp = "KeyUp";
-    public const string KeyHold = "KeyHold";
+
+    //¼üÅÌ
+    public const string GetKeyDown = "GetKeyDown";
+    public const string GetKeyUp = "GetKeyUp";
+    public const string GetKey = "GetKey";
+
+    //Êó±ê
+    public const string GetMouseButtonDown = "GetMouseButtonDown";
+    public const string GetMouseButtonUp = "GetMouseButtonUp";
+    public const string GetMouseButton = "GetMouseButton";
+    public const string MouseScroll = "MouseScroll";
+    public const string MouseDelta = "MouseDelta";
+    public const string MousePosition = "MousePosition";
+
+    // ´¥Ãþ
+    public const string TouchDown = "TouchDown";               // ´¥Ãþ°´ÏÂ
+    public const string TouchUp = "TouchUp";                   // ´¥ÃþÌ§Æð
+    public const string TouchTap = "TouchTap";                 // Çá´¥£¨µ¥»÷£©
+    public const string TouchDoubleTap = "TouchDoubleTap";     // Ë«»÷
+    public const string TouchLongPress = "TouchLongPress";     // ³¤°´
+    public const string TouchDrag = "TouchDrag";               // ÍÏ×§
+    public const string TouchPinchZoom = "TouchPinchZoom";     // Ë«Ö¸Ëõ·Å
+    public const string Gyro = "Gyro";                         // ÍÓÂÝÒÇ
 }

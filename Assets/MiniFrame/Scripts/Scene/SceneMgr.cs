@@ -40,7 +40,7 @@ namespace YSH.Framework
             while (!ao.isDone)
             {
                 //更新进度条
-                EventMgr.Instance.EventDispatcher<float>("LoadSceneProgressEvent", ao.progress);
+                EventMgr.Instance.Dispatcher<float>("LoadSceneProgressEvent", ao.progress);
 
                 yield return null;
             }

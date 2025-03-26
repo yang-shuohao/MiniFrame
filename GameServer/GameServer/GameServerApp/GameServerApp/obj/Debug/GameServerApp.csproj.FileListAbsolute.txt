@@ -1,0 +1,7 @@
+C:\Work\GameServer\GameServer\GameServerApp\GameServerApp\bin\Debug\GameServerApp.exe.config
+C:\Work\GameServer\GameServer\GameServerApp\GameServerApp\bin\Debug\GameServerApp.exe
+C:\Work\GameServer\GameServer\GameServerApp\GameServerApp\bin\Debug\GameServerApp.pdb
+C:\Work\GameServer\GameServer\GameServerApp\GameServerApp\obj\Debug\GameServerApp.csproj.AssemblyReference.cache
+C:\Work\GameServer\GameServer\GameServerApp\GameServerApp\obj\Debug\GameServerApp.csproj.CoreCompileInputs.cache
+C:\Work\GameServer\GameServer\GameServerApp\GameServerApp\obj\Debug\GameServerApp.exe
+C:\Work\GameServer\GameServer\GameServerApp\GameServerApp\obj\Debug\GameServerApp.pdb

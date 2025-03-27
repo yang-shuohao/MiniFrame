@@ -1,0 +1,3 @@
+
+namespace YSH.Framework.Exception
+{ }

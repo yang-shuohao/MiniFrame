@@ -259,7 +259,7 @@ namespace YSH.Framework
                     Debug.Log(string.Format("服务端【{0}】断开连接了！", socket.RemoteEndPoint.ToString()));
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 Debug.Log(string.Format("服务端【{0}】断开连接了！", socket.RemoteEndPoint.ToString()));
             }

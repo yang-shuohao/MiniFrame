@@ -4,27 +4,11 @@ using System.Collections;
 using UnityEngine;
 using YSH.Framework;
 
-public class TestMono
+public class TestMono : MonoBehaviour
 {
-    public TestMono()
+    private void Start()
     {
-        MonoMgr.Instance.AddUpdateListener(OnUpdate);
-
-        MonoMgr.Instance.StartCoroutine(Wait());
-    }
-
-    public void OnUpdate()
-    {
-        Debug.LogWarning(1);
-    }
-
-    IEnumerator Wait()
-    {
-        while(true)
-        {
-            Debug.LogWarning(2);
-
-            yield return null;
-        }
+        //new GameObject("Test").AddComponent<TestEnumerable2>().InitTest();
+        UIMgr.Instance.GetPanel<TestPanel>("Test");
     }
 }

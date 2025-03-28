@@ -1,87 +1,44 @@
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace YSH.Framework
 {
-
-    /// <summary>
-    /// 对象池信息
-    /// </summary>
-    public class PoolInfo
-    {
-        //父物体
-        public GameObject parentObject;
-        //对象集合
-        public List<GameObject> objects;
-
-        public PoolInfo(GameObject obj, GameObject poolParent)
-        {
-            parentObject = new GameObject(obj.name);
-            parentObject.transform.parent = poolParent.transform;
-
-            objects = new List<GameObject>();
-
-            ReleaseToPool(obj);
-        }
-
-        public GameObject GetFromPool()
-        {
-            GameObject obj = null;
-            //获取
-            obj = objects[0];
-            //移除
-            objects.RemoveAt(0);
-            //激活
-            obj.SetActive(true);
-            //设置父物体
-            obj.transform.parent = null;
-
-            return obj;
-        }
-
-        public void ReleaseToPool(GameObject obj)
-        {
-            //失活
-            obj.SetActive(false);
-            //添加
-            objects.Add(obj);
-            //设置父物体
-            obj.transform.parent = parentObject.transform;
-        }
-    }
-
-
-    /// <summary>
-    /// 池管理器
-    /// </summary>
     public class PoolMgr : Singleton<PoolMgr>
     {
         //对象池中所有物体的父物体
         private GameObject poolParent;
-        //根据名字保存对象
+        //缓存对象
         private Dictionary<string, PoolInfo> poolDic = new Dictionary<string, PoolInfo>();
+        //缓存组件
+        private Dictionary<GameObject, Component> comDic = new Dictionary<GameObject, Component>();
 
-        /// <summary>
-        /// 从对象池中获取对象
-        /// </summary>
-        /// <param name="name">名字</param>
-        /// <param name="callBack">获取后的回调</param>
-        public void GetFromPool(string name, UnityAction<GameObject> callBack)
+        #region 从对象池获取物体
+        public void Get(string name, Action<GameObject> callBack)
+        {
+            Get(name, null, callBack);
+        }
+
+        public void Get(string name, Transform parent, Action<GameObject> callBack)
+        {
+            Get(name, parent, true, callBack);
+        }
+
+        public void Get(string name, Transform parent, bool worldPositionStays, Action<GameObject> callBack)
         {
             if (poolDic.ContainsKey(name) && poolDic[name].objects.Count > 0)
             {
                 //直接取
-                callBack?.Invoke(poolDic[name].GetFromPool());
+                callBack?.Invoke(poolDic[name].Get(parent, worldPositionStays));
             }
             else
             {
                 //创建
-                //加载
-                ResMgr.Instance.LoadAssetAsync<GameObject>(name, ResMgr.Instance.resLoadType, (res) =>
+                ResMgr.Instance.LoadAssetAsync<GameObject>(name, ResMgr.Instance.resLoadType, result =>
                 {
-                    GameObject go = GameObject.Instantiate(res);
+                    GameObject go = GameObject.Instantiate(result, parent, worldPositionStays);
                     go.name = name;
 
                     callBack?.Invoke(go);
@@ -89,40 +46,107 @@ namespace YSH.Framework
             }
         }
 
-        /// <summary>
-        /// 从对象池中获取对象上的组件
-        /// </summary>
-        /// <param name="name">名字</param>
-        /// <param name="callBack">获取后的回调</param>
-        public void GetFromPool<T>(string name, UnityAction<T> callBack) where T : Component
+        public void Get(string name, Vector3 position, Quaternion rotation, Action<GameObject> callBack)
+        {
+            Get(name, position, rotation, null, callBack);
+        }
+
+        public void Get(string name, Vector3 position, Quaternion rotation, Transform parent, Action<GameObject> callBack)
         {
             if (poolDic.ContainsKey(name) && poolDic[name].objects.Count > 0)
             {
                 //直接取
-                callBack?.Invoke(poolDic[name].GetFromPool().GetComponent<T>());
+                callBack?.Invoke(poolDic[name].Get(position, rotation, parent));
             }
             else
             {
-                //直接创建物体添加组件
-                GameObject go = new GameObject(name);
-                callBack?.Invoke(go.AddComponent<T>());
+                //创建
+                ResMgr.Instance.LoadAssetAsync<GameObject>(name, ResMgr.Instance.resLoadType, result =>
+                {
+                    GameObject go = GameObject.Instantiate(result, position, rotation, parent);
+                    go.name = name;
+
+                    callBack?.Invoke(go);
+                });
             }
         }
+        #endregion
+
+        #region 从对象池中获取对象上的组件
+
+        public void Get<T>(string name, UnityAction<T> callBack) where T : Component
+        {
+            Get(name, null, callBack);
+        }
+
+        public void Get<T>(string name, Transform parent, UnityAction<T> callBack) where T : Component
+        {
+            Get(name, parent, true, callBack);
+        }
+
+        public void Get<T>(string name, Transform parent, bool worldPositionStays, UnityAction<T> callBack) where T : Component
+        {
+            Get(name, parent, worldPositionStays, (obj) =>
+            {
+                T com = null;
+                if (!comDic.ContainsKey(obj))
+                {
+                    com = obj.GetComponent<T>();
+                    comDic.Add(obj, com);
+                }
+                else
+                {
+                    com = comDic[obj] as T;
+                }
+                callBack?.Invoke(com);
+            });
+        }
+
+        public void Get<T>(string name, Vector3 position, Quaternion rotation, UnityAction<T> callBack) where T : Component
+        {
+            Get(name, position, rotation, null, callBack);
+        }
+
+        public void Get<T>(string name, Vector3 position, Quaternion rotation, Transform parent, UnityAction<T> callBack) where T : Component
+        {
+            Get(name, position, rotation, parent, (obj) =>
+            {
+                T com = null;
+                if (!comDic.ContainsKey(obj))
+                {
+                    com = obj.GetComponent<T>();
+                    comDic.Add(obj, com);
+                }
+                else
+                {
+                    com = comDic[obj] as T;
+                }
+                callBack?.Invoke(com);
+            });
+        }
+
+        #endregion
 
         /// <summary>
         /// 物体放回对象池
         /// </summary>
-        /// <param name="obj">被放回的对象池</param>
-        public void ReleaseToPool(GameObject obj)
+        public void Release(GameObject obj)
         {
             if (poolParent == null)
             {
                 poolParent = new GameObject("PoolParent");
             }
 
+            // 防止重复归还
+            if (poolDic.ContainsKey(obj.name) && poolDic[obj.name].objects.Contains(obj))
+            {
+                LogMgr.Instance.LogWarning($"Object {obj.name} is already in the pool.");
+                return;
+            }
+
             if (poolDic.ContainsKey(obj.name))
             {
-                poolDic[obj.name].ReleaseToPool(obj);
+                poolDic[obj.name].Release(obj);
             }
             else
             {
@@ -136,7 +160,81 @@ namespace YSH.Framework
         public void ClearPool()
         {
             poolDic.Clear();
+            comDic.Clear();
             poolDic = null;
+            comDic = null;
+        }
+
+        private class PoolInfo
+        {
+            //父物体
+            public GameObject parentObject;
+            //对象集合
+            public List<GameObject> objects;
+
+            public PoolInfo(GameObject obj, GameObject poolParent)
+            {
+                parentObject = new GameObject(obj.name);
+
+                parentObject.transform.parent = poolParent.transform;
+
+                objects = new List<GameObject>();
+
+                Release(obj);
+            }
+
+            public GameObject Get()
+            {
+                return Get(null);
+            }
+
+            public GameObject Get(Transform parent)
+            {
+                return Get(parent, true);
+            }
+
+            public GameObject Get(Transform parent, bool worldPositionStays)
+            {
+                int lastIndex = objects.Count - 1;
+                GameObject obj = objects[lastIndex];
+                objects.RemoveAt(lastIndex);
+
+                obj.transform.SetParent(parent, worldPositionStays);
+                obj.SetActive(true);
+
+                return obj;
+            }
+
+            public GameObject Get(Vector3 position, Quaternion rotation)
+            {
+                return Get(position, rotation, null);
+            }
+
+            public GameObject Get(Vector3 position, Quaternion rotation, Transform parent)
+            {
+                int lastIndex = objects.Count - 1;
+                GameObject obj = objects[lastIndex];
+                objects.RemoveAt(lastIndex);
+
+                obj.transform.SetParent(parent);
+                obj.transform.position = position;
+                obj.transform.rotation = rotation;
+                obj.SetActive(true);
+
+                return obj;
+            }
+
+            public void Release(GameObject obj)
+            {
+                obj.SetActive(false);
+
+                //注意UI物体的缩放
+                Vector3 scale = obj.transform.localScale;
+                obj.transform.SetParent(parentObject.transform);
+                obj.transform.localScale = scale;
+
+                objects.Add(obj);
+            }
         }
     }
 }

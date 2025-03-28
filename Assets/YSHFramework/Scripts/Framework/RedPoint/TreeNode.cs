@@ -1,11 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace YSH.Framework
 {
-
     public class TreeNode
     {
         /// <summary>
@@ -190,7 +187,6 @@ namespace YSH.Framework
         /// </summary>
         public TreeNode GetChild(RangeString key)
         {
-
             if (children == null)
             {
                 return null;

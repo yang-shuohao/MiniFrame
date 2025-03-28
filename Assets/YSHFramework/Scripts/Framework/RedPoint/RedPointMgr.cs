@@ -1,15 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using UnityEngine;
 
 namespace YSH.Framework
 {
-
-    /// <summary>
-    /// 红点管理器
-    /// </summary>
     public class RedPointMgr : Singleton<RedPointMgr>
     {
         /// <summary>
@@ -25,7 +19,6 @@ namespace YSH.Framework
         /// <summary>
         /// 临时脏节点集合
         /// </summary>
-
         private List<TreeNode> tempDirtyNodes;
 
         /// <summary>
@@ -188,8 +181,6 @@ namespace YSH.Framework
             allNodes.Add(path, target);
 
             return target;
-
-
         }
 
         /// <summary>

@@ -10,5 +10,6 @@ public class TestMono : MonoBehaviour
     {
         //new GameObject("Test").AddComponent<TestEnumerable2>().InitTest();
         UIMgr.Instance.GetPanel<TestPanel>("Test");
+
     }
 }

@@ -2,7 +2,6 @@ using System;
 
 namespace YSH.Framework
 {
-
     /// <summary>
     /// ·¶Î§×Ö·û´®
     /// ±íÊ¾ÔÚSource×Ö·û´®ÖÐ£¬´ÓStartIndexµ½EndIndex·¶Î§µÄ×Ö·û¹¹³ÉµÄ×Ö·û´®
@@ -34,11 +33,8 @@ namespace YSH.Framework
         /// </summary>
         private bool isSourceNullOrEmpty;
 
-        /// <summary>
-        /// ¹þÏ£Âë
-        /// </summary>
         private int hashCode;
-
+        private bool isHashCalculated;
 
         public RangeString(string source, int startIndex, int endIndex)
         {
@@ -48,11 +44,11 @@ namespace YSH.Framework
             length = endIndex - startIndex + 1;
             isSourceNullOrEmpty = string.IsNullOrEmpty(source);
             hashCode = 0;
+            isHashCalculated = false;
         }
 
         public bool Equals(RangeString other)
         {
-
             bool isOtherNullOrEmpty = string.IsNullOrEmpty(other.sourceStr);
 
             if (isSourceNullOrEmpty && isOtherNullOrEmpty)
@@ -83,14 +79,15 @@ namespace YSH.Framework
 
         public override int GetHashCode()
         {
-            if (hashCode == 0 && !isSourceNullOrEmpty)
+            if (!isHashCalculated && !isSourceNullOrEmpty)
             {
+                hashCode = 0;
                 for (int i = startIndex; i <= endIndex; i++)
                 {
                     hashCode = 31 * hashCode + sourceStr[i];
                 }
+                isHashCalculated = true;
             }
-
             return hashCode;
         }
 

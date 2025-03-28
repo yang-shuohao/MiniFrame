@@ -44,7 +44,7 @@ public class NetTest : MonoBehaviour
         jsonStr["UserName"] = "ysh";
         jsonStr["Pwd"] = "123456";
 
-        NetWorkHttpMgr.Instance.Post(GameConstants.WebURL, jsonStr.ToJson(), response =>
+        NetWorkHttpMgr.Instance.Post(FrameworkConstants.WebURL, jsonStr.ToJson(), response =>
         {
             if (response.HasError)
             {

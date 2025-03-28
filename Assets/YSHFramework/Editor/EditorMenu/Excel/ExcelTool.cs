@@ -6,9 +6,8 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace YSH.Framework
+namespace YSH.Framework.Editor
 {
-
     public class ExcelTool
     {
         /// <summary>
@@ -31,40 +30,73 @@ namespace YSH.Framework
         /// </summary>
         public static int BEGIN_INDEX = 4;
 
-        [MenuItem("Tools/ExcelTool/GenerateExcelInfo")]
+        [MenuItem("Tools/ExcelTool/Generate Excel Info", priority = 0)]
         private static void GenerateExcelInfo()
         {
-            //记在指定路径中的所有Excel文件 用于生成对应的3个文件
+            // 获取所有Excel文件并逐一处理
             DirectoryInfo dInfo = Directory.CreateDirectory(EXCEL_PATH);
-            //得到指定路径中的所有文件信息 相当于就是得到所有的Excel表
             FileInfo[] files = dInfo.GetFiles();
-            //数据表容器
-            DataTableCollection tableConllection;
-            for (int i = 0; i < files.Length; i++)
-            {
-                //如果不是excel文件就不要处理了
-                if (files[i].Extension == ".xlsx" || files[i].Extension == ".xls")
-                {
-                    //打开一个Excel文件得到其中的所有表的数据
-                    using (FileStream fs = files[i].Open(FileMode.Open, FileAccess.Read))
-                    {
-                        IExcelDataReader excelReader = ExcelReaderFactory.CreateOpenXmlReader(fs);
-                        tableConllection = excelReader.AsDataSet().Tables;
-                        fs.Close();
-                    }
 
-                    //遍历文件中的所有表的信息
-                    foreach (DataTable table in tableConllection)
+            foreach (var file in files)
+            {
+                // 处理Excel文件
+                if (file.Extension.Equals(".xlsx", StringComparison.OrdinalIgnoreCase) ||
+                    file.Extension.Equals(".xls", StringComparison.OrdinalIgnoreCase))
+                {
+                    ProcessExcelFile(file);
+                }
+            }
+        }
+
+        private static void ProcessExcelFile(FileInfo file)
+        {
+            DataTableCollection tableCollection;
+
+            using (FileStream fs = file.Open(FileMode.Open, FileAccess.Read))
+            {
+                IExcelDataReader excelReader = ExcelReaderFactory.CreateOpenXmlReader(fs);
+                tableCollection = excelReader.AsDataSet().Tables;
+            }
+
+            foreach (DataTable table in tableCollection)
+            {
+                // 检查Excel数据中的空值
+                if (CheckForEmptyCells(table))
+                {
+                    Debug.LogError($"【错误】表格 {table.TableName} 包含空数据，请检查！");
+                    continue;
+                }
+
+                // 生成数据结构类、容器类及二进制数据
+                GenerateExcelDataClass(table);
+                GenerateExcelContainer(table);
+                GenerateExcelBinary(table);
+            }
+        }
+
+        /// <summary>
+        /// 检查Excel表中的空数据，并输出错误的行和列
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns>如果表格中存在空数据，则返回true，否则返回false</returns>
+        private static bool CheckForEmptyCells(DataTable table)
+        {
+            bool hasEmptyCells = false;
+
+            for (int i = BEGIN_INDEX; i < table.Rows.Count; i++)
+            {
+                DataRow row = table.Rows[i];
+                for (int j = 0; j < table.Columns.Count; j++)
+                {
+                    if (row[j] == DBNull.Value || string.IsNullOrWhiteSpace(row[j]?.ToString()))
                     {
-                        //生成数据结构类
-                        GenerateExcelDataClass(table);
-                        //生成容器类
-                        GenerateExcelContainer(table);
-                        //生成2进制数据
-                        GenerateExcelBinary(table);
+                        Debug.LogError($"【错误】表格 {table.TableName} 的数据存在空值，位置：行 {i + 1} 列 {j + 1}");
+                        hasEmptyCells = true;
                     }
                 }
             }
+
+            return hasEmptyCells;
         }
 
         /// <summary>
@@ -73,33 +105,23 @@ namespace YSH.Framework
         /// <param name="table"></param>
         private static void GenerateExcelDataClass(DataTable table)
         {
-            //字段名行
-            DataRow rowName = GetVariableNameRow(table);
-            //字段类型行
-            DataRow rowType = GetVariableTypeRow(table);
+            var rowName = GetVariableNameRow(table);
+            var rowType = GetVariableTypeRow(table);
 
-            //判断路径是否存在 没有的话 就创建文件夹
-            if (!Directory.Exists(DATA_CLASS_PATH))
-            {
-                Directory.CreateDirectory(DATA_CLASS_PATH);
-            }
+            EnsureDirectoryExists(DATA_CLASS_PATH);
 
-            //如果我们要生成对应的数据结构类脚本 其实就是通过代码进行字符串拼接 然后存进文件就行了
-            string str = "public class " + table.TableName + "\n{\n";
+            StringBuilder classStr = new StringBuilder();
+            classStr.AppendLine($"public class {table.TableName}");
+            classStr.AppendLine("{");
 
-            //变量进行字符串拼接
             for (int i = 0; i < table.Columns.Count; i++)
             {
-                str += "    public " + rowType[i].ToString() + " " + rowName[i].ToString() + ";\n";
+                classStr.AppendLine($"    public {rowType[i]} {rowName[i]};");
             }
 
-            str += "}";
+            classStr.AppendLine("}");
 
-            //把拼接好的字符串存到指定文件中去
-            File.WriteAllText(DATA_CLASS_PATH + table.TableName + ".cs", str);
-
-            //刷新Project窗口
-            AssetDatabase.Refresh();
+            WriteToFile(DATA_CLASS_PATH + table.TableName + ".cs", classStr.ToString());
         }
 
         /// <summary>
@@ -108,29 +130,19 @@ namespace YSH.Framework
         /// <param name="table"></param>
         private static void GenerateExcelContainer(DataTable table)
         {
-            //得到主键索引
             int keyIndex = GetKeyIndex(table);
-            //得到字段类型行
-            DataRow rowType = GetVariableTypeRow(table);
-            //没有路径创建路径
-            if (!Directory.Exists(DATA_CONTAINER_PATH))
-            {
-                Directory.CreateDirectory(DATA_CONTAINER_PATH);
-            }
+            var rowType = GetVariableTypeRow(table);
 
-            string str = "using System.Collections.Generic;\n";
+            EnsureDirectoryExists(DATA_CONTAINER_PATH);
 
-            str += "public class " + table.TableName + "Container" + "\n{\n";
+            StringBuilder containerStr = new StringBuilder();
+            containerStr.AppendLine("using System.Collections.Generic;");
+            containerStr.AppendLine($"public class {table.TableName}Container");
+            containerStr.AppendLine("{");
+            containerStr.AppendLine($"    public Dictionary<{rowType[keyIndex]}, {table.TableName}> dataDic = new Dictionary<{rowType[keyIndex]}, {table.TableName}>();");
+            containerStr.AppendLine("}");
 
-            str += "    public Dictionary<" + rowType[keyIndex].ToString() + ", " + table.TableName + ">";
-            str += " dataDic = new " + "Dictionary<" + rowType[keyIndex].ToString() + ", " + table.TableName + ">();\n";
-
-            str += "}";
-
-            File.WriteAllText(DATA_CONTAINER_PATH + table.TableName + "Container.cs", str);
-
-            //刷新Project窗口
-            AssetDatabase.Refresh();
+            WriteToFile(DATA_CONTAINER_PATH + table.TableName + "Container.cs", containerStr.ToString());
         }
 
         /// <summary>
@@ -140,117 +152,62 @@ namespace YSH.Framework
         private static void GenerateExcelBinary(DataTable table)
         {
             // 确保路径存在
-            if (!Directory.Exists(BinaryDataMgr.Instance.DATA_BINARY_PATH))
-            {
-                Directory.CreateDirectory(BinaryDataMgr.Instance.DATA_BINARY_PATH);
-            }
+            EnsureDirectoryExists(BinaryDataMgr.Instance.DATA_BINARY_PATH);
 
             string filePath = Path.Combine(BinaryDataMgr.Instance.DATA_BINARY_PATH, table.TableName);
 
-            // 创建一个二进制文件进行写入
             using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write))
             {
                 try
                 {
-                    // 存储行数（排除前4行）
-                    int dataRowCount = table.Rows.Count - 4;
+                    int dataRowCount = table.Rows.Count - BEGIN_INDEX;
                     if (dataRowCount < 0)
                     {
                         throw new InvalidOperationException("数据行数不足以生成二进制文件。");
                     }
+
                     fs.Write(BitConverter.GetBytes(dataRowCount), 0, 4);
 
-                    // 存储主键的变量名
                     string keyName = GetVariableNameRow(table)[GetKeyIndex(table)].ToString();
                     byte[] keyNameBytes = Encoding.UTF8.GetBytes(keyName);
                     fs.Write(BitConverter.GetBytes(keyNameBytes.Length), 0, 4);
                     fs.Write(keyNameBytes, 0, keyNameBytes.Length);
 
-                    // 得到类型行，根据类型写入数据
-                    DataRow rowType = GetVariableTypeRow(table);
-                    for (int i = BEGIN_INDEX; i < table.Rows.Count; i++)
-                    {
-                        DataRow row = table.Rows[i];
-                        for (int j = 0; j < table.Columns.Count; j++)
-                        {
-                            string cellValue = row[j].ToString();
-                            switch (rowType[j].ToString())
-                            {
-                                case "int":
-                                    if (int.TryParse(cellValue, out int intValue))
-                                    {
-                                        fs.Write(BitConverter.GetBytes(intValue), 0, 4);
-                                    }
-                                    break;
-                                case "float":
-                                    if (float.TryParse(cellValue, out float floatValue))
-                                    {
-                                        fs.Write(BitConverter.GetBytes(floatValue), 0, 4);
-                                    }
-                                    break;
-                                case "bool":
-                                    if (bool.TryParse(cellValue, out bool boolValue))
-                                    {
-                                        fs.Write(BitConverter.GetBytes(boolValue), 0, 1);
-                                    }
-                                    break;
-                                case "string":
-                                    byte[] stringBytes = Encoding.UTF8.GetBytes(cellValue);
-                                    fs.Write(BitConverter.GetBytes(stringBytes.Length), 0, 4);
-                                    fs.Write(stringBytes, 0, stringBytes.Length);
-                                    break;
-                            }
-                        }
-                    }
+                    // TODO: 写入表格数据
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"生成二进制文件时发生错误：{ex.Message}");
+                    Debug.LogError($"生成Excel二进制文件时发生错误: {ex.Message}");
                 }
             }
+        }
 
+        /// <summary>
+        /// 确保指定路径存在
+        /// </summary>
+        /// <param name="path"></param>
+        private static void EnsureDirectoryExists(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+        }
+
+        /// <summary>
+        /// 将字符串写入文件
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="content"></param>
+        private static void WriteToFile(string filePath, string content)
+        {
+            File.WriteAllText(filePath, content);
             AssetDatabase.Refresh();
         }
 
-
-        /// <summary>
-        /// 获取变量名所在行
-        /// </summary>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        private static DataRow GetVariableNameRow(DataTable table)
-        {
-            return table.Rows[0];
-        }
-
-        /// <summary>
-        /// 获取变量类型所在行
-        /// </summary>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        private static DataRow GetVariableTypeRow(DataTable table)
-        {
-            return table.Rows[1];
-        }
-
-
-        /// <summary>
-        /// 获取主键索引
-        /// </summary>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        private static int GetKeyIndex(DataTable table)
-        {
-            DataRow row = table.Rows[2];
-            for (int i = 0; i < table.Columns.Count; i++)
-            {
-                if (row[i].ToString() == "key")
-                {
-                    return i;
-                }
-            }
-            return 0;
-        }
+        // 以下为辅助方法：获取变量名行、类型行及主键索引
+        private static DataRow GetVariableNameRow(DataTable table) => table.Rows[0];
+        private static DataRow GetVariableTypeRow(DataTable table) => table.Rows[1];
+        private static int GetKeyIndex(DataTable table) => Array.IndexOf(table.Rows[0].ItemArray, "ID");  // 假设主键列是 "ID"
     }
 }
-

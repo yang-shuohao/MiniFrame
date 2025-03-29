@@ -7,9 +7,6 @@ namespace YSH.Framework
     {
         protected MonoSingleton() { }
 
-        //退出编辑器播放模式时，在OnDestroy里面调用会出现错误，使用此进行判断
-        public static bool IsExisted { get; private set; } = false;
-
         private static T instance;
         public static T Instance
         {
@@ -24,8 +21,6 @@ namespace YSH.Framework
                         GameObject go = new GameObject(typeof(T).Name);
                         instance = go.AddComponent<T>();
                         DontDestroyOnLoad(go);
-
-                        IsExisted = true;
                     }
                 }
 
@@ -33,9 +28,5 @@ namespace YSH.Framework
             }
         }
 
-        protected virtual void OnDestroy()
-        {
-            IsExisted = false;
-        }
     }
 }

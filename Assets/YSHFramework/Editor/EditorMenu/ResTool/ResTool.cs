@@ -1,161 +1,136 @@
-
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEngine;
 
-public class ResTool
+namespace YSH.Framework.Editor
 {
-    /// <summary>
-    /// 生成AA所有资源名
-    /// </summary>
-    [MenuItem("Tools/ResTool/GenerateAAResNames")]
-    private static void GenerateAAResNames()
+
+    public class ResTool
     {
-        // 要遍历的文件夹路径
-        string targetFolder = "Assets/GameRes";
+        private static readonly string ScriptFolder = "Assets/Scripts/Constants";
 
-        // 脚本保存路径
-        string scriptFolder = "Assets/Scripts/Constants";
-        string scriptPath = Path.Combine(scriptFolder, "AAResNames.cs");
-
-        // 创建脚本文件夹，如果不存在
-        if (!Directory.Exists(scriptFolder))
+        /// <summary>
+        /// 生成 AA 资源名
+        /// </summary>
+        [MenuItem("YSHFramework/ResTool/Generate AAResNames", priority = 3)]
+        private static void GenerateAAResNames()
         {
-            Directory.CreateDirectory(scriptFolder);
-        }
-
-        // 获取所有文件
-        string[] files = Directory.GetFiles(targetFolder, "*.*", SearchOption.AllDirectories);
-
-        // 创建StringBuilder来构建脚本内容
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("public static class ResNames");
-        sb.AppendLine("{");
-
-        // 正则表达式去除非字母数字字符和替换空格为下划线
-        Regex invalidCharsRegex = new Regex("[^a-zA-Z0-9_]");
-        Regex spaceRegex = new Regex("\\s+");
-
-        // 遍历文件，添加静态字段
-        foreach (string file in files)
-        {
-            // 忽略.meta文件
-            if (file.EndsWith(".meta"))
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null)
             {
-                continue;
+                Debug.LogError("Addressable Asset Settings not found.");
+                return;
             }
 
-            string fileName = Path.GetFileNameWithoutExtension(file);
-            string fileExtension = Path.GetExtension(file).Replace(".", "_"); // 替换文件扩展名中的"."为"_"
-            string sanitizedFileName = spaceRegex.Replace(fileName, "_");
-            sanitizedFileName = invalidCharsRegex.Replace(sanitizedFileName, "");
-
-            // Ensure unique field name
-            string fieldName = $"{sanitizedFileName}{fileExtension}";
-
-            sb.AppendLine($"    public static readonly string {fieldName} = \"{fileName}\";");
-        }
-
-        sb.AppendLine("}");
-
-        // 写入脚本文件
-        File.WriteAllText(scriptPath, sb.ToString());
-
-        // 刷新AssetDatabase
-        AssetDatabase.Refresh();
-
-        UnityEngine.Debug.Log("ResNames.cs script generated successfully!");
-    }
-
-
-    /// <summary>
-    /// 生成Resources文件夹下所有资源的映射名
-    /// </summary>
-    [MenuItem("Tools/ResTool/GenerateResNames")]
-    private static void GenerateResNames()
-    {
-        // 要遍历的文件夹路径
-        string targetFolder = "Assets/Resources";
-
-        // 脚本保存路径
-        string scriptFolder = "Assets/Scripts/Constants";
-        string scriptPath = Path.Combine(scriptFolder, "ResNames.cs");
-
-        // 创建脚本文件夹，如果不存在
-        if (!Directory.Exists(scriptFolder))
-        {
-            Directory.CreateDirectory(scriptFolder);
-        }
-
-        // 获取所有文件
-        string[] files = Directory.GetFiles(targetFolder, "*.*", SearchOption.AllDirectories);
-
-        // 创建StringBuilder来构建脚本内容
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("public static class ResNames");
-        sb.AppendLine("{");
-
-        // 正则表达式去除非字母数字字符和替换空格为下划线
-        Regex invalidCharsRegex = new Regex("[^a-zA-Z0-9_]");
-        Regex spaceRegex = new Regex("\\s+");
-
-        // 遍历文件，添加静态字段
-        foreach (string file in files)
-        {
-            // 忽略.meta文件
-            if (file.EndsWith(".meta"))
+            Dictionary<string, string> resDict = new Dictionary<string, string>();
+            foreach (var group in settings.groups)
             {
-                continue;
+                if (group == null || group.entries == null || group.Name == "Built In Data") continue;
+
+                foreach (var entry in group.entries)
+                {
+                    string address = entry.address;
+                    string extension = Path.GetExtension(entry.AssetPath).Replace(".", "_");
+                    string fieldName = GenerateValidFieldName(address, extension, resDict);
+                    resDict[fieldName] = address;
+                }
             }
 
-            string fileName = Path.GetFileNameWithoutExtension(file);
-            string fileExtension = Path.GetExtension(file).Replace(".", "_"); // 替换文件扩展名中的"."为"_"
-            string sanitizedFileName = spaceRegex.Replace(fileName, "_");
-            sanitizedFileName = invalidCharsRegex.Replace(sanitizedFileName, "");
-
-            // Ensure unique field name
-            string fieldName = $"{sanitizedFileName}{fileExtension}";
-
-            string assetPath = GetResourcePath(file);
-
-            sb.AppendLine($"    public static readonly string {fieldName} = \"{assetPath}\";");
+            GenerateScript("AAResNames.cs", "AAResNames", resDict);
         }
 
-        sb.AppendLine("}");
-
-        // 写入脚本文件
-        File.WriteAllText(scriptPath, sb.ToString());
-
-        // 刷新AssetDatabase
-        AssetDatabase.Refresh();
-
-        UnityEngine.Debug.Log("ResNames.cs script generated successfully!");
-    }
-
-    /// <summary>
-    /// 获取资源文件相对于 Resources 文件夹的路径，不包括扩展名
-    /// </summary>
-    /// <param name="fullPath">资源文件的完整路径</param>
-    /// <returns>相对于 Resources 文件夹的路径，不包括扩展名</returns>
-    public static string GetResourcePath(string fullPath)
-    {
-        // 确保路径使用正斜杠
-        fullPath = fullPath.Replace("\\", "/");
-
-        // 找到 Resources 文件夹的位置
-        int resourcesIndex = fullPath.IndexOf("Resources/");
-        if (resourcesIndex == -1)
+        /// <summary>
+        /// 生成 Resources 资源名
+        /// </summary>
+        [MenuItem("YSHFramework/ResTool/Generate ResNames", priority = 4)]
+        private static void GenerateResNames()
         {
-            return null; // 不是 Resources 文件夹下的文件
+            string targetFolder = "Assets/Resources";
+            if (!Directory.Exists(targetFolder))
+            {
+                Debug.LogError("Resources folder not found.");
+                return;
+            }
+
+            Dictionary<string, string> resDict = new Dictionary<string, string>();
+            foreach (string file in Directory.GetFiles(targetFolder, "*.*", SearchOption.AllDirectories))
+            {
+                if (file.EndsWith(".meta")) continue;
+
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                string extension = Path.GetExtension(file).Replace(".", "_");
+                string resourcePath = GetResourcePath(file);
+
+                if (!string.IsNullOrEmpty(resourcePath))
+                {
+                    string fieldName = GenerateValidFieldName(fileName, extension, resDict);
+                    resDict[fieldName] = resourcePath;
+                }
+            }
+
+            GenerateScript("ResNames.cs", "ResNames", resDict);
         }
 
-        // 获取相对路径
-        string relativePath = fullPath.Substring(resourcesIndex + "Resources/".Length);
+        /// <summary>
+        /// 生成 C# 常量类文件
+        /// </summary>
+        private static void GenerateScript(string fileName, string className, Dictionary<string, string> resDict)
+        {
+            string scriptPath = Path.Combine(ScriptFolder, fileName);
 
-        // 移除文件的扩展名
-        relativePath = Path.ChangeExtension(relativePath, null);
+            if (!Directory.Exists(ScriptFolder))
+            {
+                Directory.CreateDirectory(ScriptFolder);
+            }
 
-        return relativePath;
+            StringBuilder sb = new StringBuilder(resDict.Count * 50);
+            sb.AppendLine($"public static class {className}");
+            sb.AppendLine("{");
+
+            foreach (var kvp in resDict)
+            {
+                sb.AppendLine($"    public const string {kvp.Key} = \"{kvp.Value}\";");
+            }
+
+            sb.AppendLine("}");
+
+            File.WriteAllText(scriptPath, sb.ToString());
+            AssetDatabase.Refresh();
+            Debug.Log($"{fileName} script generated successfully!");
+        }
+
+        /// <summary>
+        /// 生成唯一有效的字段名
+        /// </summary>
+        private static string GenerateValidFieldName(string name, string extension, Dictionary<string, string> existingFields)
+        {
+            // 合并空格替换和非法字符移除，提升效率
+            string sanitized = Regex.Replace(name, "[^a-zA-Z0-9_]", "_");
+            string fieldName = $"{sanitized}{extension}";
+
+            // 确保唯一性
+            int counter = 1;
+            string uniqueFieldName = fieldName;
+            while (existingFields.ContainsKey(uniqueFieldName))
+            {
+                uniqueFieldName = $"{fieldName}_{counter++}";
+            }
+
+            return uniqueFieldName;
+        }
+
+        /// <summary>
+        /// 获取资源文件相对于 Resources 文件夹的路径（不包含扩展名）
+        /// </summary>
+        private static string GetResourcePath(string fullPath)
+        {
+            fullPath = fullPath.Replace("\\", "/");
+            int index = fullPath.IndexOf("Resources/");
+            return index >= 0 ? Path.ChangeExtension(fullPath.Substring(index + 10), null) : null;
+        }
     }
 }

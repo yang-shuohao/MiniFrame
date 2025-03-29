@@ -30,7 +30,7 @@ namespace YSH.Framework.Editor
         /// </summary>
         public static int BEGIN_INDEX = 4;
 
-        [MenuItem("Tools/ExcelTool/Generate Excel Info", priority = 0)]
+        [MenuItem("YSHFramework/ExcelTool/Generate Excel Info", priority = 0)]
         private static void GenerateExcelInfo()
         {
             // 获取所有Excel文件并逐一处理

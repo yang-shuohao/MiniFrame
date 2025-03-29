@@ -1,30 +1,34 @@
-
 using System.IO;
 using System.Text;
 using UnityEditor;
+using UnityEngine;
 
-public class LayerTool
+namespace YSH.Framework.Editor
 {
-    //脚本保存路径
-    private static readonly string savFilePath = "Assets/Scripts/Constants/Layers.cs";
-
-    [MenuItem("Tools/Tag&LayerTool/GenerateLayers")]
-    private static void GenerateLayers()
+    public class LayerTool
     {
-        var sb = new StringBuilder();
-        sb.AppendLine("public static class Layers");
-        sb.AppendLine("{");
+        private static readonly string savFilePath = "Assets/Scripts/Constants/Layers.cs";
 
-        foreach (var layer in UnityEditorInternal.InternalEditorUtility.layers)
+        [MenuItem("YSHFramework/LayerTool/Generate Layers", priority = 1)]
+        private static void GenerateLayers()
         {
-            sb.AppendLine($"    public static readonly string {layer.Replace(" ", "_")}_Layer = \"{layer}\";");
+            var sb = new StringBuilder();
+            sb.AppendLine("public static class Layers");
+            sb.AppendLine("{");
+
+            foreach (var layer in UnityEditorInternal.InternalEditorUtility.layers)
+            {
+                sb.AppendLine($"    public static readonly string {layer.Replace(" ", "_")}_Layer = \"{layer}\";");
+            }
+
+            sb.AppendLine("}");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(savFilePath));
+            File.WriteAllText(savFilePath, sb.ToString());
+
+            AssetDatabase.Refresh();
+
+            Debug.Log($"<color=cyan>Layers.cs 生成成功：</color> {savFilePath}");
         }
-
-        sb.AppendLine("}");
-
-        Directory.CreateDirectory(Path.GetDirectoryName(savFilePath));
-        File.WriteAllText(savFilePath, sb.ToString());
-
-        AssetDatabase.Refresh();
     }
 }

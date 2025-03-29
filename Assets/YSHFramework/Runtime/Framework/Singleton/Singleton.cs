@@ -26,5 +26,6 @@ namespace YSH.Framework
                 return instance;
             }
         }
+
     }
 }

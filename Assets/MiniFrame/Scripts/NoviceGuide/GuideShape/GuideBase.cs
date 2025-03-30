@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using YSH.Framework;
+
 public class GuideBase : MonoBehaviour
 {
     public Material material;

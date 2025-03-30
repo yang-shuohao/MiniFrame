@@ -14,7 +14,7 @@ public class TestMono : MonoBehaviour
     {
         LogMgr.Instance.isPrintErrorMsgOnScreen = true;
 
-        GMMgr.Instance.isEnableGM = true;
+        GMMgr.Instance.EnableGM();
     }
 
     private void Update()

@@ -4,22 +4,25 @@ namespace YSH.Framework
 {
     public class GMMgr : MonoSingleton<GMMgr>
     {
-        //是否启用GM
-        public bool isEnableGM;
-
         // 用户输入的命令
         private string inputText = "";
-        // 滚动位置
-        private Vector2 scrollPosition = Vector2.zero;
         // 是否显示 GM 界面
         private bool showConsole = false;
 
         private GMCmd gmCmd = new GMCmd();
 
+        // 滚动位置
+        private Vector2 scrollPosition = Vector2.zero;
+        private Texture2D solidBackgroundTexture;
+
+        //启用GM
+        public void EnableGM()
+        {
+
+        }
+
         private void Update()
         {
-            if (!isEnableGM) return;
-
             // PC 端按 ~ 键打开 GM 面板
             if (Input.GetKeyDown(KeyCode.BackQuote))
             {
@@ -36,6 +39,16 @@ namespace YSH.Framework
         private void OnGUI()
         {
             if (!showConsole) return;
+
+            // 如果纹理还没有创建，则创建一个带透明度的背景纹理
+            if (solidBackgroundTexture == null)
+            {
+                solidBackgroundTexture = new Texture2D(1, 1);
+                solidBackgroundTexture.SetPixel(0, 0, new Color(0f, 0f, 0f, 0.8f));
+                solidBackgroundTexture.Apply();
+            }
+            // 绘制一个全屏背景，带透明度
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), solidBackgroundTexture);
 
             GUIStyle boxStyle = new GUIStyle(GUI.skin.box)
             {
@@ -98,13 +111,13 @@ namespace YSH.Framework
             inputText = GUI.TextField(new Rect(20, screenHeight - inputHeight, screenWidth - 350, inputHeight - 20), inputText, inputStyle);
 
             // 执行按钮
-            if (GUI.Button(new Rect(screenWidth - 300, screenHeight - inputHeight, 120, inputHeight - 20), "执行", executeButtonStyle))
+            if (GUI.Button(new Rect(screenWidth - 300, screenHeight - inputHeight, 120, inputHeight - 20), "Run", executeButtonStyle))
             {
                 gmCmd.ExecuteCommand(inputText);
             }
 
             // 清空按钮
-            if (GUI.Button(new Rect(screenWidth - 150, screenHeight - inputHeight, 120, inputHeight - 20), "清空", clearButtonStyle))
+            if (GUI.Button(new Rect(screenWidth - 150, screenHeight - inputHeight, 120, inputHeight - 20), "Clear", clearButtonStyle))
             {
                 inputText = ""; // 清空输入框
             }

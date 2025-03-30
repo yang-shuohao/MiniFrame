@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace YSH.Framework
 {
-    //游戏中GM命令在这注册
+    //游戏中GM命令在这注册，注意移动端等默认不支持中文
     public partial class GMCmd
     {
         public GMCmd()

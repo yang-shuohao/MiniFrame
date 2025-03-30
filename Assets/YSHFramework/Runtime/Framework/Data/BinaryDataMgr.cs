@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace YSH.Framework
 {
-
     /// <summary>
     /// 2进制数据管理器
     /// </summary>
@@ -29,13 +28,10 @@ namespace YSH.Framework
         /// </summary>
         private Dictionary<string, object> tableDic = new Dictionary<string, object>();
 
-
-
         public BinaryDataMgr()
         {
 
         }
-
 
         /// <summary>
         /// 加载Excel表的2进制数据到内存中 
@@ -44,8 +40,10 @@ namespace YSH.Framework
         /// <typeparam name="K">数据结构类类名</typeparam>
         public void LoadTable<T, K>()
         {
+            string filePath = Path.Combine(DATA_BINARY_PATH, typeof(K).Name);
+
             //读取 excel表对应的2进制文件 来进行解析
-            using (FileStream fs = File.Open(DATA_BINARY_PATH + typeof(K).Name, FileMode.Open, FileAccess.Read))
+            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
             {
                 byte[] bytes = new byte[fs.Length];
                 fs.Read(bytes, 0, bytes.Length);

@@ -6,28 +6,14 @@ using UnityEngine.SceneManagement;
 
 namespace YSH.Framework
 {
-
-    /// <summary>
-    /// 场景管理器
-    /// </summary>
     public class SceneMgr : Singleton<SceneMgr>
     {
-        /// <summary>
-        /// 同步加载场景
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="action"></param>
         public void LoadScene(string name, UnityAction action)
         {
             SceneManager.LoadScene(name);
             action?.Invoke();
         }
 
-        /// <summary>
-        /// 异步加载场景
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="action"></param>
         public void LoadSceneAsyn(string name, UnityAction action)
         {
             MonoMgr.Instance.StartCoroutine(LoadSceneAsynImplement(name, action));

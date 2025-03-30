@@ -1,20 +1,18 @@
 
 
-using System.Collections;
 using UnityEngine;
 using YSH.Framework;
 using DG.Tweening;
 using YSH.Framework.Utils;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
+
 
 public class TestMono : MonoBehaviour
 {
-
+    private SpriteRenderer sr;
 
     private void Start()
     {
-
+        LogMgr.Instance.isPrintErrorMsgOnScreen = true;
     }
 
     private void Update()

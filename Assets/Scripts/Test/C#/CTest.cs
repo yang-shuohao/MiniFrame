@@ -7,7 +7,7 @@ namespace YSH.Framework
     {
         private void Start()
         {
-            GMGUIMgr.Instance.isShowGMUI = true;
+
         }
     }
 }

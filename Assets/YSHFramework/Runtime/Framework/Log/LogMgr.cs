@@ -97,9 +97,7 @@ namespace YSH.Framework
         private void CreateLogErrorPanel()
         {
             logErrorPanel = new GameObject("LogErrorPanel");
-            Image imgLogErrorPanel = logErrorPanel.AddComponent<Image>();
-            imgLogErrorPanel.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
-            RectTransform logErrorPanelRT = logErrorPanel.transform as RectTransform;
+            RectTransform logErrorPanelRT = logErrorPanel.AddComponent<RectTransform>();
             logErrorPanelRT.anchorMin = Vector2.zero;
             logErrorPanelRT.anchorMax = Vector2.one;
             logErrorPanelRT.offsetMin = Vector2.zero;
@@ -117,8 +115,8 @@ namespace YSH.Framework
             //创建ScrollRect
             GameObject scrollViewGO = new GameObject("ScrollView");
             Image imgScrollView = scrollViewGO.AddComponent<Image>();
-            imgScrollView.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
-            scrollViewGO.transform.SetParent(logErrorPanel.transform, false);
+            imgScrollView.color = new Color(0f, 0f, 0f, 0.5f);
+            scrollViewGO.transform.SetParent(bgGO.transform, false);
             RectTransform scrollViewRT = scrollViewGO.GetComponent<RectTransform>();
             scrollViewRT.anchorMin = Vector2.zero;
             scrollViewRT.anchorMax = Vector2.one;
@@ -139,6 +137,7 @@ namespace YSH.Framework
             viewportRT.offsetMin = Vector2.zero;
             viewportRT.offsetMax = Vector2.zero;
             viewport.AddComponent<RectMask2D>();
+            scrollRect.viewport = viewportRT;
 
             // 创建Text
             GameObject txtErrorGO = new GameObject("txtError");
@@ -153,13 +152,12 @@ namespace YSH.Framework
             txtErrorRT.offsetMax = Vector2.zero;
             txtErrorRT.anchorMin = Vector2.zero;
             txtErrorRT.anchorMax = Vector2.one;
-
             scrollRect.content = txtErrorRT;
 
             //创建垂直滚动条
             GameObject scrollbarGO = new GameObject("ScrollbarVertical");
             Image imgScrollbar = scrollbarGO.AddComponent<Image>();
-            imgScrollbar.color = new Color(0f, 0f, 0f, 1f);
+            imgScrollbar.color = new Color(0.373f, 0.373f, 0.373f, 1f);
             Scrollbar scrollbar = scrollbarGO.AddComponent<Scrollbar>();
             scrollbar.direction = Scrollbar.Direction.BottomToTop;
             RectTransform scrollbarRT = scrollbarGO.GetComponent<RectTransform>();
@@ -171,7 +169,7 @@ namespace YSH.Framework
 
             GameObject handleGO = new GameObject("Handle");
             Image imgHandle = handleGO.AddComponent<Image>();
-            imgHandle.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            imgHandle.color = new Color(0.345f, 0.882f, 0.737f, 1f);
             scrollbar.handleRect = (handleGO.transform as RectTransform);
             scrollbar.targetGraphic = imgHandle;
             RectTransform handleGORT = handleGO.transform as RectTransform;
@@ -189,7 +187,7 @@ namespace YSH.Framework
             //创建底部关闭按钮
             GameObject btnCloseGO = new GameObject("btnClose");
             Image imgClose = btnCloseGO.AddComponent<Image>();
-            imgClose.color = Color.gray;
+            imgClose.color = new Color(0.098f, 0.580f, 0.984f, 0.5f);
             Button btnClose = btnCloseGO.AddComponent<Button>();
             btnClose.targetGraphic = imgClose;
             btnClose.onClick.AddListener(() =>
@@ -215,7 +213,7 @@ namespace YSH.Framework
             txtRunRT.anchorMax = Vector2.one;
             txtRunRT.offsetMin = Vector2.zero;
             txtRunRT.offsetMax = Vector2.zero;
-            btnCloseGO.transform.SetParent(logErrorPanel.transform, false);
+            btnCloseGO.transform.SetParent(bgGO.transform, false);
             txtCloseGO.transform.SetParent(btnCloseGO.transform, false);
         }
     }

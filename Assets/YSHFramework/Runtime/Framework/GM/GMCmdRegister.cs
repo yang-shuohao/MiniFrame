@@ -15,6 +15,8 @@ namespace YSH.Framework
             gmCommands.Add("AddGold", new GMCommand("AddGold", "增加指定数量的金币", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加金币 {args[0]}");
+
+                GUIMgr.Instance.ShowPopup("增加金币", 2f);
             }));
 
             gmCommands.Add("SetLevel", new GMCommand("SetLevel", "设置角色等级 (等级 职业)", args =>

@@ -27,12 +27,14 @@ namespace YSH.Framework
             if (Input.GetKeyDown(KeyCode.BackQuote))
             {
                 showConsole = !showConsole;
+                InputMgr.Instance.IsEnableInput = !showConsole;
             }
 
             // 移动端检测四指点击
             if (Input.touchCount >= 4)
             {
                 showConsole = !showConsole;
+                InputMgr.Instance.IsEnableInput = !showConsole;
             }
         }
 

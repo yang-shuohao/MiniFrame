@@ -1,7 +1,6 @@
 
 using System.Collections;
 using UnityEngine;
-using YSH.Framework.Utils;
 
 namespace YSH.Framework
 {
@@ -9,17 +8,26 @@ namespace YSH.Framework
     {
         private bool showPopup = false;
         private string message = "";
+        private Coroutine hideCoroutine;
 
         public void ShowPopup(string msg, float duration = 2f)
         {
+            // 取消之前的隐藏协程（防止多次调用时重叠）
+            if (hideCoroutine != null)
+            {
+                StopCoroutine(hideCoroutine);
+            }
+
             message = msg;
             showPopup = true;
-            StartCoroutine(HideAfterTime(duration));
+
+            // 启动新的隐藏协程
+            hideCoroutine = StartCoroutine(HideAfterTime(duration));
         }
 
         private IEnumerator HideAfterTime(float duration)
         {
-            yield return CoroutineCache.GetWaitForSeconds(duration);
+            yield return new WaitForSeconds(duration);
             showPopup = false;
         }
 
@@ -38,12 +46,13 @@ namespace YSH.Framework
                 };
                 style.normal.textColor = Color.red; // 设置字体颜色为红色
 
-                // 设置背景颜色
-                style.normal.background = CreateTexture(Color.green); // 设置背景为蓝色
-
                 // 计算居中位置
-                float width = 300;
-                float height = 100;
+                int width = 300;
+                int height = 100;
+
+                // 设置背景颜色
+                style.normal.background = MakeTexture(width, height, Color.green); // 设置背景为绿色
+
                 Rect rect = new Rect((Screen.width - width) / 2, Screen.height / 3, width, height);
 
                 // 使用GUIStyle渲染红色文本
@@ -52,10 +61,15 @@ namespace YSH.Framework
         }
 
         // 创建一个指定颜色的 1x1 像素纹理
-        private Texture2D CreateTexture(Color color)
+        public Texture2D MakeTexture(int width, int height, Color color)
         {
-            Texture2D texture = new Texture2D(1, 1);
-            texture.SetPixel(0, 0, color);
+            Texture2D texture = new Texture2D(width, height);
+            Color[] pixels = new Color[width * height];
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = color;
+            }
+            texture.SetPixels(pixels);
             texture.Apply();
             return texture;
         }

@@ -15,6 +15,8 @@ public class TestMono : MonoBehaviour
         LogMgr.Instance.isPrintErrorMsgOnScreen = true;
 
         GMMgr.Instance.EnableGM();
+
+        sr.sortingLayerID = 1;
     }
 
     private void Update()

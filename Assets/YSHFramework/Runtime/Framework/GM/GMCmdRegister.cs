@@ -39,6 +39,46 @@ namespace YSH.Framework
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));
+
+            gmCommands.Add("AddDiamond2", new GMCommand("AddDiamond", "增加钻石", args =>
+            {
+                if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
+            }));
+
+            gmCommands.Add("AddDiamond3", new GMCommand("AddDiamond", "增加钻石", args =>
+            {
+                if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
+            }));
+
+            gmCommands.Add("AddDiamond4", new GMCommand("AddDiamond", "增加钻石", args =>
+            {
+                if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
+            }));
+
+            gmCommands.Add("AddDiamond5", new GMCommand("AddDiamond", "增加钻石", args =>
+            {
+                if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
+            }));
+
+            gmCommands.Add("AddDiamond6", new GMCommand("AddDiamond", "增加钻石", args =>
+            {
+                if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
+            }));
+
+            gmCommands.Add("AddDiamond7", new GMCommand("AddDiamond", "增加钻石", args =>
+            {
+                if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
+            }));
+
+            gmCommands.Add("AddDiamond8", new GMCommand("AddDiamond", "增加钻石", args =>
+            {
+                if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
+            }));
+
+            gmCommands.Add("AddDiamond9", new GMCommand("AddDiamond", "增加钻石", args =>
+            {
+                if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
+            }));
         }
     }
 }

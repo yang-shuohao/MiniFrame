@@ -20,7 +20,6 @@ namespace YSH.Framework
 
         // 滚动条位置
         private Vector2 scrollPosition = Vector2.zero;
-        private Texture2D solidBackgroundTexture;
 
         private void Awake()
         {
@@ -79,15 +78,8 @@ namespace YSH.Framework
         {
             if (isPrintErrorMsgOnScreen && errorMessageSB != null && errorMessageSB.Length > 0)
             {
-                // 如果纹理还没有创建，则创建一个带透明度的背景纹理
-                if (solidBackgroundTexture == null)
-                {
-                    solidBackgroundTexture = new Texture2D(1, 1);
-                    solidBackgroundTexture.SetPixel(0, 0, new Color(0f, 0f, 0f, 0.8f));
-                    solidBackgroundTexture.Apply();
-                }
                 // 绘制一个全屏背景，带透明度
-                GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), solidBackgroundTexture);
+                GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), GUIMgr.Instance.MakeTexture(1,1, new Color(0f, 0f, 0f, 0.8f)));
 
                 // 错误信息样式
                 GUIStyle errorStyle = new GUIStyle(GUI.skin.label)
@@ -98,23 +90,48 @@ namespace YSH.Framework
                     normal = { textColor = Color.red }
                 };
 
-                // **按钮样式**
+                // 按钮样式
                 GUIStyle buttonStyle = new GUIStyle(GUI.skin.button)
                 {
                     fontSize = 40 // 放大按钮文字
                 };
 
+                // 自定义滚动条和滑块样式
+                GUIStyle scrollStyle = new GUIStyle(GUI.skin.scrollView)
+                {
+                    fixedWidth = 40 // 设置垂直滚动条的宽度为40
+                };
+
+                // 自定义滚动条滑块的样式
+                GUIStyle thumbStyle = new GUIStyle(GUI.skin.verticalScrollbarThumb)
+                {
+                    fixedWidth = 40, // 设置滑块的宽度为40
+                    normal = { background = GUIMgr.Instance.MakeTexture(40, 1, Color.green) } // 设置滑块颜色
+                };
+
+                // 自定义滚动条的轨道样式（可选）
+                GUIStyle trackStyle = new GUIStyle(GUI.skin.verticalScrollbar)
+                {
+                    fixedWidth = 40, // 设置滚动条轨道的宽度为40
+                    normal = { background = GUIMgr.Instance.MakeTexture(40, 1, Color.gray) } // 设置轨道颜色
+                };
+
                 float buttonHeight = 150;
                 float textAreaHeight = Screen.height - buttonHeight; // 让滚动区域占据整个屏幕，按钮不被覆盖
 
-                // **滚动区域**
+                // 滚动区域
                 GUILayout.BeginArea(new Rect(50, 50, Screen.width - 100, textAreaHeight - 100)); // 留出一些边距
-                scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(Screen.width - 100), GUILayout.Height(textAreaHeight - 100));
+                scrollPosition = GUILayout.BeginScrollView(scrollPosition, scrollStyle, GUILayout.Width(Screen.width - 100), GUILayout.Height(textAreaHeight - 100));
+
+                // 应用滑块和轨道样式
+                GUI.skin.verticalScrollbarThumb = thumbStyle;
+                GUI.skin.verticalScrollbar = trackStyle;
+
                 GUILayout.Label(errorMessageSB.ToString(), errorStyle);
                 GUILayout.EndScrollView();
                 GUILayout.EndArea();
 
-                // **底部关闭按钮**
+                // 底部关闭按钮
                 GUILayout.BeginArea(new Rect(0, Screen.height - buttonHeight, Screen.width, buttonHeight));
                 if (GUILayout.Button("Close", buttonStyle, GUILayout.Height(buttonHeight)))
                 {

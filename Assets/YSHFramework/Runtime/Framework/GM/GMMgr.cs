@@ -73,7 +73,9 @@ namespace YSH.Framework
         {
             //根
             gmPanel = new GameObject("GMPanel");
-            RectTransform imgGMRT = gmPanel.AddComponent<RectTransform>();
+            Image imgGMPanel = gmPanel.AddComponent<Image>();
+            imgGMPanel.color = new Color(0.176f, 0.176f, 0.176f, 0.5f);
+            RectTransform imgGMRT = gmPanel.transform as RectTransform;
             imgGMRT.anchorMin = Vector2.zero;
             imgGMRT.anchorMax = Vector2.one;
             imgGMRT.offsetMin = Vector2.zero;
@@ -85,11 +87,11 @@ namespace YSH.Framework
             imgBg.color = new Color(0.176f, 0.176f, 0.176f, 0.5f);
             bgGO.transform.SetParent(gmPanel.transform, false);
             RectTransform imgBgRT = imgBg.transform as RectTransform;
-            bgGO.AddComponent<SafeAreaAdjuster>();
             imgBgRT.anchorMin = Vector2.zero;
             imgBgRT.anchorMax = Vector2.one;
             imgBgRT.offsetMin = Vector2.zero;
             imgBgRT.offsetMax = Vector2.zero;
+            bgGO.AddComponent<SafeAreaAdjuster>();
         }
 
         // 创建滚动区域
@@ -229,6 +231,11 @@ namespace YSH.Framework
             ifGORT.anchorMax = new Vector2(1f, 0f);
             ifGORT.offsetMin = new Vector2(0, 20);
             ifGORT.offsetMax = new Vector2(-400, 100);
+
+            //TODO,微信输入框
+#if UNITY_WEBGL && !UNITY_EDITOR
+        ifGO.AddComponent<WXInputField>();
+#endif
 
             //Text Area
             GameObject textArea = new GameObject("TextArea");

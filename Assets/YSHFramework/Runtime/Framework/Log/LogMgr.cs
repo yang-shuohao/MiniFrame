@@ -104,13 +104,15 @@ namespace YSH.Framework
             logErrorPanelRT.offsetMax = Vector2.zero;
 
             GameObject bgGO = new GameObject("Bg");
-            RectTransform bgRT = bgGO.AddComponent<RectTransform>();
-            bgGO.AddComponent<SafeAreaAdjuster>();
+            Image imgBg = bgGO.AddComponent<Image>();
+            imgBg.color = new Color(0f, 0f, 0f, 0.5f);
+            RectTransform bgRT = bgGO.transform as RectTransform;
             bgRT.transform.SetParent(logErrorPanel.transform, false);
             bgRT.anchorMin = Vector2.zero;
             bgRT.anchorMax = Vector2.one;
             bgRT.offsetMin = Vector2.zero;
             bgRT.offsetMax = Vector2.zero;
+            bgGO.AddComponent<SafeAreaAdjuster>();
 
             //´´½¨ScrollRect
             GameObject scrollViewGO = new GameObject("ScrollView");

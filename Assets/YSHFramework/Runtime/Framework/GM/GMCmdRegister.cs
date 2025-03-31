@@ -12,70 +12,75 @@ namespace YSH.Framework
 
         private void RegisterCommands()
         {
-            gmCommands.Add("AddGold", new GMCommand("AddGold", "增加指定数量的金币", args =>
+            gmCommands.Add("AddGold", new GMCommand("AddGold", "AddGold", args =>
             {
-                if (args.Length > 0) Debug.Log($"增加金币 {args[0]}");
+                if (args.Length > 0) Debug.Log($"AddGold {args[0]}");
 
-                GUIMgr.Instance.ShowPopup("增加金币", 2f);
+                string content = "AddGold";
+                for (int i = 0; i < args.Length; i++)
+                {
+                    content += " " + args[i];
+                }
+                DebugUIMgr.Instance.ShowPopupPanel(content);
             }));
 
-            gmCommands.Add("SetLevel", new GMCommand("SetLevel", "设置角色等级 (等级 职业)", args =>
+            gmCommands.Add("SetLevel", new GMCommand("SetLevel", "SetLevel", args =>
             {
                 if (args.Length >= 2)
                     Debug.Log($"设置等级: {args[0]}，职业: {args[1]}");
             }));
 
-            gmCommands.Add("UnlockAll", new GMCommand("UnlockAll", "解锁所有功能", args =>
+            gmCommands.Add("UnlockAll", new GMCommand("UnlockAll", "UnlockAll", args =>
             {
                 Debug.Log("解锁所有内容");
             }));
 
-            gmCommands.Add("GodMode", new GMCommand("GodMode", "开启无敌模式", args =>
+            gmCommands.Add("GodMode", new GMCommand("GodMode", "GodMode", args =>
             {
                 Debug.Log("无敌模式开启");
             }));
 
-            gmCommands.Add("AddDiamond", new GMCommand("AddDiamond", "增加钻石", args =>
+            gmCommands.Add("AddDiamond", new GMCommand("AddDiamond", "AddDiamond", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));
 
-            gmCommands.Add("AddDiamond2", new GMCommand("AddDiamond", "增加钻石", args =>
+            gmCommands.Add("AddDiamond2", new GMCommand("AddDiamond", "AddDiamond", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));
 
-            gmCommands.Add("AddDiamond3", new GMCommand("AddDiamond", "增加钻石", args =>
+            gmCommands.Add("AddDiamond3", new GMCommand("AddDiamond", "AddDiamond", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));
 
-            gmCommands.Add("AddDiamond4", new GMCommand("AddDiamond", "增加钻石", args =>
+            gmCommands.Add("AddDiamond4", new GMCommand("AddDiamond", "AddDiamond", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));
 
-            gmCommands.Add("AddDiamond5", new GMCommand("AddDiamond", "增加钻石", args =>
+            gmCommands.Add("AddDiamond5", new GMCommand("AddDiamond", "AddDiamond", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));
 
-            gmCommands.Add("AddDiamond6", new GMCommand("AddDiamond", "增加钻石", args =>
+            gmCommands.Add("AddDiamond6", new GMCommand("AddDiamond", "AddDiamond", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));
 
-            gmCommands.Add("AddDiamond7", new GMCommand("AddDiamond", "增加钻石", args =>
+            gmCommands.Add("AddDiamond7", new GMCommand("AddDiamond", "AddDiamond", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));
 
-            gmCommands.Add("AddDiamond8", new GMCommand("AddDiamond", "增加钻石", args =>
+            gmCommands.Add("AddDiamond8", new GMCommand("AddDiamond", "AddDiamond", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));
 
-            gmCommands.Add("AddDiamond9", new GMCommand("AddDiamond", "增加钻石", args =>
+            gmCommands.Add("AddDiamond9", new GMCommand("AddDiamond", "AddDiamond", args =>
             {
                 if (args.Length > 0) Debug.Log($"增加钻石 {args[0]}");
             }));

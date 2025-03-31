@@ -4,6 +4,7 @@ using UnityEngine;
 using YSH.Framework;
 using DG.Tweening;
 using YSH.Framework.Utils;
+using UnityEngine.UI;
 
 
 public class TestMono : MonoBehaviour
@@ -23,7 +24,7 @@ public class TestMono : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-           
+
         }
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {

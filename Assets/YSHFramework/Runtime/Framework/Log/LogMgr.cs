@@ -1,10 +1,12 @@
 
 using System.Text;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace YSH.Framework
 {
-    public class LogMgr : MonoSingleton<LogMgr>
+    public class LogMgr : Singleton<LogMgr>
     {
         //是否启用普通日志
         public bool isEnableDebugLog;
@@ -18,10 +20,10 @@ namespace YSH.Framework
         //错误数据
         private StringBuilder errorMessageSB;
 
-        // 滚动条位置
-        private Vector2 scrollPosition = Vector2.zero;
+        private GameObject logErrorPanel;
+        private TMP_Text txtError;
 
-        private void Awake()
+        public LogMgr()
         {
             errorMessageSB = new StringBuilder();
 
@@ -70,75 +72,151 @@ namespace YSH.Framework
                 errorMessageSB.Append("\n");
                 errorMessageSB.Append(stackTrace);
                 errorMessageSB.Append("\n");
+
+                PrintErrorMsgOnScreen();
             }
         }
 
         // 打印错误信息到屏幕
-        void OnGUI()
+        private void PrintErrorMsgOnScreen()
         {
             if (isPrintErrorMsgOnScreen && errorMessageSB != null && errorMessageSB.Length > 0)
             {
-                // 绘制一个全屏背景，带透明度
-                GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), GUIMgr.Instance.MakeTexture(1,1, new Color(0f, 0f, 0f, 0.8f)));
-
-                // 错误信息样式
-                GUIStyle errorStyle = new GUIStyle(GUI.skin.label)
+                if(logErrorPanel == null)
                 {
-                    fontSize = 30, // 放大字体
-                    alignment = TextAnchor.MiddleLeft, // 文字左对齐
-                    wordWrap = true, // 自动换行
-                    normal = { textColor = Color.red }
-                };
-
-                // 按钮样式
-                GUIStyle buttonStyle = new GUIStyle(GUI.skin.button)
-                {
-                    fontSize = 40 // 放大按钮文字
-                };
-
-                // 自定义滚动条和滑块样式
-                GUIStyle scrollStyle = new GUIStyle(GUI.skin.scrollView)
-                {
-                    fixedWidth = 40 // 设置垂直滚动条的宽度为40
-                };
-
-                // 自定义滚动条滑块的样式
-                GUIStyle thumbStyle = new GUIStyle(GUI.skin.verticalScrollbarThumb)
-                {
-                    fixedWidth = 40, // 设置滑块的宽度为40
-                    normal = { background = GUIMgr.Instance.MakeTexture(40, 1, Color.green) } // 设置滑块颜色
-                };
-
-                // 自定义滚动条的轨道样式（可选）
-                GUIStyle trackStyle = new GUIStyle(GUI.skin.verticalScrollbar)
-                {
-                    fixedWidth = 40, // 设置滚动条轨道的宽度为40
-                    normal = { background = GUIMgr.Instance.MakeTexture(40, 1, Color.gray) } // 设置轨道颜色
-                };
-
-                float buttonHeight = 150;
-                float textAreaHeight = Screen.height - buttonHeight; // 让滚动区域占据整个屏幕，按钮不被覆盖
-
-                // 滚动区域
-                GUILayout.BeginArea(new Rect(50, 50, Screen.width - 100, textAreaHeight - 100)); // 留出一些边距
-                scrollPosition = GUILayout.BeginScrollView(scrollPosition, scrollStyle, GUILayout.Width(Screen.width - 100), GUILayout.Height(textAreaHeight - 100));
-
-                // 应用滑块和轨道样式
-                GUI.skin.verticalScrollbarThumb = thumbStyle;
-                GUI.skin.verticalScrollbar = trackStyle;
-
-                GUILayout.Label(errorMessageSB.ToString(), errorStyle);
-                GUILayout.EndScrollView();
-                GUILayout.EndArea();
-
-                // 底部关闭按钮
-                GUILayout.BeginArea(new Rect(0, Screen.height - buttonHeight, Screen.width, buttonHeight));
-                if (GUILayout.Button("Close", buttonStyle, GUILayout.Height(buttonHeight)))
-                {
-                    errorMessageSB.Clear();
+                    CreateLogErrorPanel();
                 }
-                GUILayout.EndArea();
+
+                txtError.text = errorMessageSB.ToString();
+
+                DebugUIMgr.Instance.ShowPanel(logErrorPanel);
             }
+        }
+
+        //创建错误面板
+        private void CreateLogErrorPanel()
+        {
+            logErrorPanel = new GameObject("LogErrorPanel");
+            Image imgLogErrorPanel = logErrorPanel.AddComponent<Image>();
+            imgLogErrorPanel.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+            RectTransform logErrorPanelRT = logErrorPanel.transform as RectTransform;
+            logErrorPanelRT.anchorMin = Vector2.zero;
+            logErrorPanelRT.anchorMax = Vector2.one;
+            logErrorPanelRT.offsetMin = Vector2.zero;
+            logErrorPanelRT.offsetMax = Vector2.zero;
+
+            GameObject bgGO = new GameObject("Bg");
+            RectTransform bgRT = bgGO.AddComponent<RectTransform>();
+            bgGO.AddComponent<SafeAreaAdjuster>();
+            bgRT.transform.SetParent(logErrorPanel.transform, false);
+            bgRT.anchorMin = Vector2.zero;
+            bgRT.anchorMax = Vector2.one;
+            bgRT.offsetMin = Vector2.zero;
+            bgRT.offsetMax = Vector2.zero;
+
+            //创建ScrollRect
+            GameObject scrollViewGO = new GameObject("ScrollView");
+            Image imgScrollView = scrollViewGO.AddComponent<Image>();
+            imgScrollView.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+            scrollViewGO.transform.SetParent(logErrorPanel.transform, false);
+            RectTransform scrollViewRT = scrollViewGO.GetComponent<RectTransform>();
+            scrollViewRT.anchorMin = Vector2.zero;
+            scrollViewRT.anchorMax = Vector2.one;
+            scrollViewRT.offsetMin = new Vector2(0f, 150f);
+            scrollViewRT.offsetMax = Vector2.zero;
+
+            ScrollRect scrollRect = scrollViewGO.AddComponent<ScrollRect>();
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+            scrollRect.horizontalScrollbar = null;
+
+            //创建Viewport
+            GameObject viewport = new GameObject("Viewport");
+            RectTransform viewportRT = viewport.AddComponent<RectTransform>();
+            viewport.transform.SetParent(scrollViewGO.transform, false);
+            viewportRT.anchorMin = Vector2.zero;
+            viewportRT.anchorMax = Vector2.one;
+            viewportRT.offsetMin = Vector2.zero;
+            viewportRT.offsetMax = Vector2.zero;
+            viewport.AddComponent<RectMask2D>();
+
+            // 创建Text
+            GameObject txtErrorGO = new GameObject("txtError");
+            txtError = txtErrorGO.AddComponent<TextMeshProUGUI>();
+            txtError.fontSize = 50f;
+            txtError.color = Color.red;
+            ContentSizeFitter contentSizeFitter = txtErrorGO.AddComponent<ContentSizeFitter>();
+            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            RectTransform txtErrorRT = txtErrorGO.transform as RectTransform;
+            txtErrorGO.transform.SetParent(viewportRT, false);
+            txtErrorRT.offsetMin = Vector2.zero;
+            txtErrorRT.offsetMax = Vector2.zero;
+            txtErrorRT.anchorMin = Vector2.zero;
+            txtErrorRT.anchorMax = Vector2.one;
+
+            scrollRect.content = txtErrorRT;
+
+            //创建垂直滚动条
+            GameObject scrollbarGO = new GameObject("ScrollbarVertical");
+            Image imgScrollbar = scrollbarGO.AddComponent<Image>();
+            imgScrollbar.color = new Color(0f, 0f, 0f, 1f);
+            Scrollbar scrollbar = scrollbarGO.AddComponent<Scrollbar>();
+            scrollbar.direction = Scrollbar.Direction.BottomToTop;
+            RectTransform scrollbarRT = scrollbarGO.GetComponent<RectTransform>();
+            scrollbarRT.pivot = Vector2.one;
+            scrollbarRT.anchorMin = new Vector2(1f, 0f);
+            scrollbarRT.anchorMax = Vector2.one;
+            scrollbarRT.offsetMin = new Vector2(-40f, 0f);
+            scrollbarRT.offsetMax = Vector2.zero;
+
+            GameObject handleGO = new GameObject("Handle");
+            Image imgHandle = handleGO.AddComponent<Image>();
+            imgHandle.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            scrollbar.handleRect = (handleGO.transform as RectTransform);
+            scrollbar.targetGraphic = imgHandle;
+            RectTransform handleGORT = handleGO.transform as RectTransform;
+            handleGORT.offsetMin = Vector2.zero;
+            handleGORT.offsetMax = Vector2.zero;
+
+            handleGO.transform.SetParent(scrollbarGO.transform, false);
+            scrollbarGO.transform.SetParent(scrollViewGO.transform, false);
+
+            scrollRect.verticalScrollbar = scrollbar;
+            scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
+            scrollRect.verticalScrollbarSpacing = -3f;
+            scrollbar.value = 1f;
+
+            //创建底部关闭按钮
+            GameObject btnCloseGO = new GameObject("btnClose");
+            Image imgClose = btnCloseGO.AddComponent<Image>();
+            imgClose.color = Color.gray;
+            Button btnClose = btnCloseGO.AddComponent<Button>();
+            btnClose.targetGraphic = imgClose;
+            btnClose.onClick.AddListener(() =>
+            {
+                errorMessageSB.Clear();
+
+                DebugUIMgr.Instance.HidePanel(logErrorPanel.name);
+            });
+            RectTransform btnCloseRT = (btnCloseGO.transform as RectTransform);
+            btnCloseRT.anchorMin = Vector2.zero;
+            btnCloseRT.anchorMax = new Vector2(1f, 0f);
+            btnCloseRT.offsetMin = new Vector2(0f, 0f);
+            btnCloseRT.offsetMax = new Vector2(0f, 150f);
+
+            GameObject txtCloseGO = new GameObject("txtClose");
+            TMP_Text txtRun = txtCloseGO.AddComponent<TextMeshProUGUI>();
+            txtRun.fontSize = 70f;
+            txtRun.color = Color.white;
+            txtRun.alignment = TextAlignmentOptions.Center;
+            txtRun.text = "Close";
+            RectTransform txtRunRT = txtCloseGO.transform as RectTransform;
+            txtRunRT.anchorMin = Vector2.zero;
+            txtRunRT.anchorMax = Vector2.one;
+            txtRunRT.offsetMin = Vector2.zero;
+            txtRunRT.offsetMax = Vector2.zero;
+            btnCloseGO.transform.SetParent(logErrorPanel.transform, false);
+            txtCloseGO.transform.SetParent(btnCloseGO.transform, false);
         }
     }
 }

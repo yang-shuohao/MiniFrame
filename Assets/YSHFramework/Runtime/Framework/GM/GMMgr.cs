@@ -232,11 +232,6 @@ namespace YSH.Framework
             ifGORT.offsetMin = new Vector2(0, 20);
             ifGORT.offsetMax = new Vector2(-400, 100);
 
-            //TODO,微信输入框
-#if UNITY_WEBGL && !UNITY_EDITOR
-        ifGO.AddComponent<WXInputField>();
-#endif
-
             //Text Area
             GameObject textArea = new GameObject("TextArea");
             RectTransform textAreaRT = textArea.AddComponent<RectTransform>();
@@ -289,6 +284,11 @@ namespace YSH.Framework
             inputField.pointSize = 40f;
             inputField.placeholder = txtPlaceholder;
             inputField.caretWidth = 2;
+
+            //TODO,微信输入框
+#if UNITY_WEBGL && !UNITY_EDITOR
+        ifGO.AddComponent<WXInputField>();
+#endif
 
             //*按钮*//
             //Run按钮

@@ -10,10 +10,10 @@ namespace YSH.Framework
         {
             rectTransform = GetComponent<RectTransform>();
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
             ApplySafeArea();
 #else
-            WXApplySafeArea();
+        WXApplySafeArea();
 #endif
         }
 
@@ -34,18 +34,25 @@ namespace YSH.Framework
 
         void WXApplySafeArea()
         {
-            //var info = WeChatWASM.WX.GetSystemInfoSync();
+#if UNITY_WEBGL && !UNITY_EDITOR
+            var info = WeChatWASM.WX.GetSystemInfoSync();
 
-            //Vector2 anchorMin = new Vector2((float)info.safeArea.left, (float)info.safeArea.top);
-            //Vector2 anchorMax = new Vector2((float)info.safeArea.right, (float)info.safeArea.bottom);
+            float safeLeft = (float)info.safeArea.left;
+            float safeTop = (float)info.safeArea.top;
+            float safeWidth = (float)info.safeArea.width;
+            float safeHeight = (float)info.safeArea.height;
 
-            //anchorMin.x /= (float)info.screenWidth;
-            //anchorMin.y /= (float)info.screenHeight;
-            //anchorMax.x /= (float)info.screenWidth;
-            //anchorMax.y /= (float)info.screenHeight;
+            Vector2 anchorMin = new Vector2(safeLeft / (float)info.screenWidth,
+                                            safeTop / (float)info.screenHeight);
 
-            //rectTransform.anchorMin = anchorMin;
-            //rectTransform.anchorMax = anchorMax;
+            //Vector2 anchorMax = new Vector2((safeLeft + safeWidth) / (float)info.screenWidth,
+            //                                (safeTop + safeHeight) / (float)info.screenHeight);
+            //TODO，右边使用左边一样的安全区
+            Vector2 anchorMax = new Vector2(1f - anchorMin.x, 1f - anchorMin.y);
+
+            rectTransform.anchorMin = anchorMin;
+            rectTransform.anchorMax = anchorMax;
+#endif
         }
     }
 }

@@ -8,14 +8,12 @@ namespace YSH.Framework
 {
     public class LogMgr : Singleton<LogMgr>
     {
-        //是否启用普通日志
-        public bool isEnableDebugLog;
-        //是否启用警告日志
-        public bool isEnableDebugLogWarning;
-        //是否启用错误日志
-        public bool isEnableDebugLogError;
+        //是否启用日志
+        public bool isEnableLog;
         //是否打印错误日志到屏幕
         public bool isPrintErrorMsgOnScreen;
+        //是否上传错误日志
+        public bool isUpLoadErrorMsg;
 
         //错误数据
         private StringBuilder errorMessageSB;
@@ -30,17 +28,16 @@ namespace YSH.Framework
             Application.logMessageReceived += OnLogCallBack;
         }
 
-        public void ToggleLogging(bool isEnableLog)
+        public void EnableLog(bool isEnable)
         {
-            isEnableDebugLog = isEnableLog;
-            isEnableDebugLogWarning = isEnableLog;
-            isEnableDebugLogError = isEnableLog;
-            isPrintErrorMsgOnScreen = isEnableLog;
+            isEnableLog = isEnable;
+            isPrintErrorMsgOnScreen = isEnable;
+            isUpLoadErrorMsg = isEnable;
         }
 
         public void Log(object message, Object context = null)
         {
-            if (isEnableDebugLog)
+            if (isEnableLog)
             {
                 Debug.Log(message, context);
             }
@@ -48,7 +45,7 @@ namespace YSH.Framework
 
         public void LogWarning(object message, Object context = null)
         {
-            if (isEnableDebugLogWarning)
+            if (isEnableLog)
             {
                 Debug.LogWarning(message, context);
             }
@@ -56,7 +53,7 @@ namespace YSH.Framework
 
         public void LogError(object message, Object context = null)
         {
-            if (isEnableDebugLogError)
+            if (isEnableLog)
             {
                 Debug.LogError(message, context);
             }
@@ -74,7 +71,46 @@ namespace YSH.Framework
                 errorMessageSB.Append("\n");
 
                 PrintErrorMsgOnScreen();
+
+                UploadErrorMsg();
             }
+        }
+        // 上传错误信息
+        private void UploadErrorMsg()
+        {
+            if (!isUpLoadErrorMsg)
+            {
+                return;
+            }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        UpLoadErrorMsgInWXMiniGame();
+#endif
+        }
+
+        private void UpLoadErrorMsgInWXMiniGame()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WeChatWASM.WXBase.cloud.Init(new WeChatWASM.CallFunctionInitParam()
+            {
+                env = WXMgr.envID,
+                traceUser = false
+            });
+
+            WeChatWASM.WXBase.cloud.CallFunction(new WeChatWASM.CallFunctionParam()
+            {
+                name = WXMgr.upLoadErrorDataName,
+                data = JsonMapper.ToJson(errorMessageSB.ToString()),
+                success = (res) =>
+                {
+                    LogMgr.Instance.Log("UpLoadErrorData Success!");
+                },
+                fail = (res) =>
+                {
+                    LogMgr.Instance.Log("UpLoadErrorData Failed!" + res.errMsg);
+                },
+            });
+#endif
         }
 
         // 打印错误信息到屏幕
@@ -82,7 +118,7 @@ namespace YSH.Framework
         {
             if (isPrintErrorMsgOnScreen && errorMessageSB != null && errorMessageSB.Length > 0)
             {
-                if(logErrorPanel == null)
+                if (logErrorPanel == null)
                 {
                     CreateLogErrorPanel();
                 }

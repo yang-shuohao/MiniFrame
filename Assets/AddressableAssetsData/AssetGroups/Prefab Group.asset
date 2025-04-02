@@ -29,10 +29,6 @@ MonoBehaviour:
     m_Address: Canvas
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: e40209cdf4518e944a14e8a559e68e43
-    m_Address: TestPanel
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 0b736e9ccc7b0c146be7b2c72667fe4b, type: 2}
   m_SchemaSet:

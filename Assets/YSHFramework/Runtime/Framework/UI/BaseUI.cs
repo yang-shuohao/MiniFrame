@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 namespace YSH.Framework
 {
-
     public class BaseUI : MonoBehaviour
     {
         //存储当前UI的所有控件
@@ -14,13 +13,15 @@ namespace YSH.Framework
 
         protected virtual void Awake()
         {
-            FindChildrenControl<Button>();
-            FindChildrenControl<Image>();
-            FindChildrenControl<TMP_Text>();
-            FindChildrenControl<Toggle>();
-            FindChildrenControl<Slider>();
-            FindChildrenControl<ScrollRect>();
-            FindChildrenControl<TMP_InputField>();
+            FindChildrenControl<Image>();//img
+            FindChildrenControl<TMP_Text>();//txt
+            FindChildrenControl<RawImage>();//rimg
+            FindChildrenControl<Toggle>();//tog
+            FindChildrenControl<Slider>();//sli
+            FindChildrenControl<ScrollRect>();//sr
+            FindChildrenControl<Button>();//btn
+            FindChildrenControl<TMP_Dropdown>();//dd
+            FindChildrenControl<TMP_InputField>();//if
         }
 
         /// <summary>
@@ -41,23 +42,37 @@ namespace YSH.Framework
                     controlDic.Add(objName, new List<UIBehaviour>() { controls[i] });
                 }
 
-                //Button
-                if (controls[i] is Button)
+                // 按钮事件
+                if (controls[i] is Button button)
                 {
-                    (controls[i] as Button).onClick.AddListener(() =>
-                    {
-                        OnClick(objName);
-                    });
+                    button.onClick.AddListener(() => OnClick(objName));
                 }
-                //Toggle
-                else if (controls[i] is Toggle)
+                // Toggle 事件
+                else if (controls[i] is Toggle toggle)
                 {
-                    (controls[i] as Toggle).onValueChanged.AddListener((value) =>
-                    {
-                        OnValueChanged(objName, value);
-                    });
+                    toggle.onValueChanged.AddListener(value => OnValueChanged(objName, value));
                 }
-                //TODO 后续继续添加需要的UI
+                // Slider 事件
+                else if (controls[i] is Slider slider)
+                {
+                    slider.onValueChanged.AddListener(value => OnSliderValueChanged(objName, value));
+                }
+                // TMP_Dropdown 事件
+                else if (controls[i] is TMP_Dropdown dropdown)
+                {
+                    dropdown.onValueChanged.AddListener(value => OnDropdownValueChanged(objName, value));
+                }
+                // TMP_InputField 事件
+                else if (controls[i] is TMP_InputField inputField)
+                {
+                    inputField.onValueChanged.AddListener(value => OnInputFieldValueChanged(objName, value));
+                    inputField.onEndEdit.AddListener(value => OnInputFieldEndEdit(objName, value));
+                }
+                // ScrollRect （一般不会监听，但可以加上）
+                else if (controls[i] is ScrollRect scrollRect)
+                {
+                    scrollRect.onValueChanged.AddListener(value => OnScrollValueChanged(objName, value));
+                }
             }
         }
 
@@ -81,20 +96,39 @@ namespace YSH.Framework
         }
 
         /// <summary>
-        /// 按钮点击
+        /// 按钮点击事件
         /// </summary>
-        protected virtual void OnClick(string btnName)
-        {
-
-        }
+        protected virtual void OnClick(string btnName) { }
 
         /// <summary>
-        /// 单选多选框值改变
+        /// Toggle 值改变事件
         /// </summary>
-        protected virtual void OnValueChanged(string toggleName, bool value)
-        {
+        protected virtual void OnValueChanged(string toggleName, bool value) { }
 
-        }
+        /// <summary>
+        /// Slider 值改变事件
+        /// </summary>
+        protected virtual void OnSliderValueChanged(string sliderName, float value) { }
+
+        /// <summary>
+        /// Dropdown 选项改变事件
+        /// </summary>
+        protected virtual void OnDropdownValueChanged(string dropdownName, int value) { }
+
+        /// <summary>
+        /// InputField 输入变化事件
+        /// </summary>
+        protected virtual void OnInputFieldValueChanged(string inputFieldName, string value) { }
+
+        /// <summary>
+        /// InputField 输入结束事件
+        /// </summary>
+        protected virtual void OnInputFieldEndEdit(string inputFieldName, string value) { }
+
+        /// <summary>
+        /// ScrollRect 滑动事件（可选）
+        /// </summary>
+        protected virtual void OnScrollValueChanged(string scrollName, Vector2 value) { }
     }
 }
 

@@ -59,7 +59,7 @@ namespace YSH.Framework.Editor
 
         private static void InsertCodeIntoScript(string scriptPath, GameObject selectedObj)
         {
-            // **收集 UI 组件**
+            #region 收集 UI 组件
             var uiElements = new Dictionary<string, string>(); // 变量名 -> 类型
             foreach (var img in selectedObj.GetComponentsInChildren<Image>(true))
                 if (img.gameObject.name.StartsWith("img"))
@@ -68,30 +68,26 @@ namespace YSH.Framework.Editor
             foreach (var btn in selectedObj.GetComponentsInChildren<Button>(true))
                 if (btn.gameObject.name.StartsWith("btn"))
                     uiElements[btn.gameObject.name] = "Button";
-
-            if (uiElements.Count == 0)
-            {
-                Debug.LogWarning($"未找到符合条件的 UI 组件，无需修改代码！");
-                return;
-            }
+            #endregion
 
             string[] lines = File.ReadAllLines(scriptPath);
             StringBuilder newScript = new StringBuilder();
-            bool insideClass = false;
-            bool awakeExists = false;
-            bool insideAwake = false;
-            bool fieldInserted = false;
-            bool onClickExists = false;
-            bool insideOnClick = false;
+
+            bool isInsideClass = false;
+            bool isAwakeExists = false;
+            bool isOnClickExists = false;
+            bool isAddFieldCompleted = false;
+            bool isinsideOnClickSwitch = false;
 
             for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i].Trim();
 
-                if (line.StartsWith("public class") || line.StartsWith("class"))
-                    insideClass = true;
+                if (line.StartsWith("public class"))
+                    isInsideClass = true;
 
-                if (insideClass && line == "{")
+                //添加字段
+                if (isInsideClass && line == "{" && !isAddFieldCompleted)
                 {
                     newScript.AppendLine(lines[i]);
                     foreach (var element in uiElements)
@@ -100,59 +96,58 @@ namespace YSH.Framework.Editor
                         if (!lines.Any(l => l.Contains(fieldDeclaration)))
                         {
                             newScript.AppendLine(fieldDeclaration);
-                            fieldInserted = true;
                         }
                     }
                     continue;
                 }
 
-                if (line.StartsWith("protected override void Awake()") || line.StartsWith("void Awake()"))
+                if (line.StartsWith("protected override void Awake"))
                 {
-                    awakeExists = true;
-                    insideAwake = true;
+                    isAwakeExists = true;
+                    isAddFieldCompleted = true;
                 }
 
-                if (insideAwake && line == "{")
+                //Awake
+                if(isAwakeExists && line.StartsWith("base.Awake"))
                 {
                     newScript.AppendLine(lines[i]);
-                    if (!lines.Any(l => l.Contains("base.Awake();")))
-                        newScript.AppendLine("        base.Awake();");
-
                     foreach (var element in uiElements)
                     {
                         string initCode = $"        {element.Key} = GetControl<{element.Value}>(nameof({element.Key}));";
                         if (!lines.Any(l => l.Contains(initCode)))
                             newScript.AppendLine(initCode);
                     }
-
-                    insideAwake = false;
                     continue;
                 }
 
-                if (line.StartsWith("protected override void OnClick("))
+                if (line.StartsWith("protected override void OnClick"))
                 {
-                    onClickExists = true;
-                    insideOnClick = true;
+                    isOnClickExists = true;
                 }
 
-                if (insideOnClick && line == "{")
+                if(isOnClickExists && line.StartsWith("switch"))
+                {
+                    isinsideOnClickSwitch = true;
+                }
+
+                //插入按钮OnClick
+                if (isinsideOnClickSwitch && line == "{")
                 {
                     newScript.AppendLine(lines[i]);
                     foreach (var element in uiElements.Where(e => e.Value == "Button"))
                     {
-                        string caseCode = $"        case \"{element.Key}\":";
+                        string caseCode = $"            case \"{element.Key}\":";
                         if (!lines.Any(l => l.Contains(caseCode)))
                         {
                             newScript.AppendLine(caseCode);
-                            newScript.AppendLine("            break;");
+                            newScript.AppendLine("                break;");
                         }
                     }
-
-                    insideOnClick = false;
                     continue;
                 }
 
-                if (i == lines.Length - 1 && !awakeExists)
+                //不存在的方法直接插入
+                if (i == lines.Length - 1 && !isAwakeExists)
                 {
                     newScript.AppendLine();
                     newScript.AppendLine("    protected override void Awake()");
@@ -165,7 +160,7 @@ namespace YSH.Framework.Editor
                     newScript.AppendLine("    }");
                 }
 
-                if (i == lines.Length - 1 && !onClickExists && uiElements.Any(e => e.Value == "Button"))
+                if (i == lines.Length - 1 && !isOnClickExists && uiElements.Any(e => e.Value == "Button"))
                 {
                     newScript.AppendLine();
                     newScript.AppendLine("    protected override void OnClick(string btnName)");
@@ -186,16 +181,9 @@ namespace YSH.Framework.Editor
                 newScript.AppendLine(lines[i]);
             }
 
-            if (fieldInserted || !awakeExists || !onClickExists)
-            {
-                File.WriteAllText(scriptPath, newScript.ToString());
-                AssetDatabase.Refresh();
-                Debug.Log($"已成功修改 {scriptPath}，插入 UI 代码！");
-            }
-            else
-            {
-                Debug.LogWarning($"脚本 {scriptPath} 已包含所有字段，无需修改！");
-            }
+            File.WriteAllText(scriptPath, newScript.ToString());
+            AssetDatabase.Refresh();
+            Debug.Log($"已成功修改 {scriptPath}，插入 UI 代码！");
         }
     }
 }

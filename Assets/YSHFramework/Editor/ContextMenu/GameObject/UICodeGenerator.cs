@@ -8,10 +8,10 @@ using System.Collections.Generic;
 
 namespace YSH.Framework.Editor
 {
-    public class GenerateUICodeMenu
+    public class UICodeGeneratorMenu
     {
-        [MenuItem("GameObject/YSHFrameWork/Generate UI Code", false, 10)]
-        private static void GenerateUICode()
+        [MenuItem("GameObject/YSH FrameWork/UI Code Generator", false, 10)]
+        private static void UICodeGenerator()
         {
             GameObject selectedObj = Selection.activeGameObject;
             if (selectedObj == null)

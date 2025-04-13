@@ -2,7 +2,7 @@ using UnityEditor;
 using System.IO;
 using System.Text;
 
-namespace YSH.Framework.Editor
+namespace YSH.Framework.EditorExtensions
 {
     public class TagTool
     {

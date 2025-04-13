@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
-namespace YSH.Framework.Editor
+namespace YSH.Framework.EditorExtensions
 {
     /// <summary>
     /// 查找使用了选中脚本的物体

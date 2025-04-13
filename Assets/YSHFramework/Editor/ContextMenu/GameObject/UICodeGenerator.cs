@@ -6,7 +6,7 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace YSH.Framework.Editor
+namespace YSH.Framework.EditorExtensions
 {
     public class UICodeGeneratorMenu
     {

@@ -3,7 +3,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace YSH.Framework.Editor
+namespace YSH.Framework.EditorExtensions
 {
     public class LayerTool
     {

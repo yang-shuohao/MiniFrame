@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using YSH.Framework.Extensions;
 
-namespace YSH.Framework.Editor
+namespace YSH.Framework.EditorExtensions
 {
     public class AssetUsageFinder : EditorWindow
     {

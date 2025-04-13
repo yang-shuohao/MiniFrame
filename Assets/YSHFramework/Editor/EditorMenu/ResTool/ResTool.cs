@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEngine;
 
-namespace YSH.Framework.Editor
+namespace YSH.Framework.EditorExtensions
 {
 
     public class ResTool

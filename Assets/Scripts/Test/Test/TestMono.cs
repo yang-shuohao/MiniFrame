@@ -9,37 +9,24 @@ using YSH.Framework.Attributes;
 
 public class TestMono : MonoBehaviour
 {
-    private void Start()
-    {
+    [ProgressBar("Mana", 100, EColor.Red)]
+    public float mana = 80f;
 
-    }
+    [SortingLayer()]
+    public string sortingLayer;
 
-    private void Update()
-    {
+    [HorizontalLine(EColor.Red, 1f, 2f, "我是小亮", TextAlignment.Center, 12, EColor.Green)]
+    public int a;
 
-    }
+    public bool showAdvanced;
+
+    [ShowIf("showAdvanced == true")]
+    public float advancedValue;
+
 
     [InspectorButton("打印日志", InspectorButtonAttribute.Mode.Always)]
     private void PrintLog()
     {
         Debug.Log("按钮点击，日志输出！");
-    }
-
-    [InspectorButton("仅在运行时可用", InspectorButtonAttribute.Mode.PlayModeOnly)]
-    private void RuntimeOnly()
-    {
-        Debug.Log("运行时按钮被点击！");
-    }
-
-    [InspectorButton("仅在编辑器可用", InspectorButtonAttribute.Mode.EditorOnly)]
-    private void EditorOnly()
-    {
-        Debug.Log("编辑器下点击！");
-    }
-
-    [InspectorButton("Test", InspectorButtonAttribute.Mode.Always)]
-    private void Test()
-    {
-
     }
 }

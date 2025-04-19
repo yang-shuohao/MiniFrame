@@ -16,7 +16,7 @@ Shader "UI/GreyscaleShader"
 		_StencilReadMask("Stencil Read Mask", Float) = 255
 
 		_ColorMask("Color Mask", Float) = 15
-		_GrayscaleAmount("Grayscale Amount", Range(0, 1)) = 1.0
+		_Greyscale("Greyscale", Range(0, 1)) = 1.0
 
 		[Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip("Use Alpha Clip", Float) = 0
 	}
@@ -77,7 +77,7 @@ Shader "UI/GreyscaleShader"
 				fixed4 _Color;
 				fixed4 _TextureSampleAdd;
 				float4 _ClipRect;
-				uniform float _GrayscaleAmount;
+				uniform float _Greyscale;
 
 				v2f vert(appdata_t IN)
 				{
@@ -102,7 +102,7 @@ Shader "UI/GreyscaleShader"
 					half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
 
 					color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
-					color.rgb = lerp(color.rgb, dot(color.rgb, float3(0.3, 0.59, 0.11)), _GrayscaleAmount);
+					color.rgb = lerp(color.rgb, dot(color.rgb, float3(0.3, 0.59, 0.11)), _Greyscale);
 
 					#ifdef UNITY_UI_ALPHACLIP
 					clip(color.a - 0.001);

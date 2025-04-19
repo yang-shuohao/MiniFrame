@@ -1,9 +1,9 @@
 using UnityEditor;
 using UnityEngine;
-using System;
-using System.Text.RegularExpressions;
-using System.Reflection;
 using YSH.Framework.Attributes;
+using System;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace YSH.Framework.EditorExtensions
 {
@@ -12,8 +12,7 @@ namespace YSH.Framework.EditorExtensions
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            ShowIfAttribute showIf = (ShowIfAttribute)attribute;
-            if (EvaluateCondition(property, showIf.Expression))
+            if (ShouldShow(property))
             {
                 EditorGUI.PropertyField(position, property, label, true);
             }
@@ -21,95 +20,130 @@ namespace YSH.Framework.EditorExtensions
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            ShowIfAttribute showIf = (ShowIfAttribute)attribute;
-            return EvaluateCondition(property, showIf.Expression)
+            return ShouldShow(property)
                 ? EditorGUI.GetPropertyHeight(property, label, true)
                 : 0f;
         }
 
-        private bool EvaluateCondition(SerializedProperty property, string expression)
+        private bool ShouldShow(SerializedProperty property)
         {
-            // 支持的表达式 pattern: "field == value"
-            Match match = Regex.Match(expression, @"^\s*(\w+)\s*(==|!=|>|<|>=|<=)\s*(\w+)\s*$");
+            ShowIfAttribute attr = (ShowIfAttribute)attribute;
 
-            if (!match.Success) return true; // 语法不对就默认显示
+            if (!string.IsNullOrEmpty(attr.Expression))
+            {
+                return EvaluateExpression(property.serializedObject, attr.Expression);
+            }
+
+            if (!string.IsNullOrEmpty(attr.FieldName) && attr.CompareValue != null)
+            {
+                return CompareValue(property.serializedObject, attr.FieldName, attr.CompareValue);
+            }
+
+            if (!string.IsNullOrEmpty(attr.FieldName))
+            {
+                return EvaluateBoolField(property.serializedObject, attr.FieldName);
+            }
+
+            return true;
+        }
+
+        private bool EvaluateBoolField(SerializedObject so, string fieldName)
+        {
+            SerializedProperty sp = so.FindProperty(fieldName);
+            return sp != null && sp.propertyType == SerializedPropertyType.Boolean && sp.boolValue;
+        }
+
+        private bool CompareValue(SerializedObject so, string fieldName, object expected)
+        {
+            SerializedProperty sp = so.FindProperty(fieldName);
+            if (sp == null) return true;
+
+            object actual = GetSerializedValue(sp);
+
+            // 枚举用字符串比较
+            if (actual is string actualStr && expected is Enum)
+                return actualStr == expected.ToString();
+
+            return Equals(actual, expected);
+        }
+
+        private bool EvaluateExpression(SerializedObject so, string expr)
+        {
+            // 只支持简单表达式 field op value（支持空格）
+            var match = Regex.Match(expr, @"^\s*(\w+)\s*(==|!=|>|<|>=|<=)\s*(\w+)\s*$");
+            if (!match.Success) return true;
 
             string fieldName = match.Groups[1].Value;
             string op = match.Groups[2].Value;
-            string compareValue = match.Groups[3].Value;
+            string valueStr = match.Groups[3].Value;
 
-            SerializedObject so = property.serializedObject;
-            SerializedProperty fieldProp = so.FindProperty(fieldName);
+            SerializedProperty sp = so.FindProperty(fieldName);
+            if (sp == null) return true;
 
-            if (fieldProp == null) return true;
+            object actual = GetSerializedValue(sp);
+            object expected = TryParse(valueStr, actual?.GetType());
 
-            object fieldVal = GetSerializedValue(fieldProp);
+            if (actual == null || expected == null)
+                return true;
 
-            object parsedVal = ParseStringToType(compareValue, fieldVal?.GetType(), so.targetObject.GetType());
-
-            if (fieldVal == null || parsedVal == null) return true;
-
-            int comp = Comparer(fieldVal, parsedVal);
-
-            return op switch
-            {
-                "==" => comp == 0,
-                "!=" => comp != 0,
-                ">" => comp > 0,
-                "<" => comp < 0,
-                ">=" => comp >= 0,
-                "<=" => comp <= 0,
-                _ => true,
-            };
+            return CompareWithOperator(actual, expected, op);
         }
 
-        private object GetSerializedValue(SerializedProperty prop)
-        {
-            switch (prop.propertyType)
-            {
-                case SerializedPropertyType.Boolean: return prop.boolValue;
-                case SerializedPropertyType.Enum: return prop.enumNames[prop.enumValueIndex];
-                case SerializedPropertyType.Integer: return prop.intValue;
-                case SerializedPropertyType.Float: return prop.floatValue;
-                case SerializedPropertyType.String: return prop.stringValue;
-            }
-            return null;
-        }
-
-        private object ParseStringToType(string input, Type type, Type targetClassType)
+        private object TryParse(string value, Type targetType)
         {
             try
             {
-                if (type == typeof(bool)) return bool.Parse(input);
-                if (type == typeof(int)) return int.Parse(input);
-                if (type == typeof(float)) return float.Parse(input);
-                if (type == typeof(string)) return input;
-
-                // 如果是枚举
-                if (type.IsEnum)
-                {
-                    foreach (var field in targetClassType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
-                    {
-                        if (field.FieldType == type)
-                        {
-                            return Enum.Parse(type, input);
-                        }
-                    }
-                }
+                if (targetType == typeof(int)) return int.Parse(value);
+                if (targetType == typeof(float)) return float.Parse(value);
+                if (targetType == typeof(bool)) return bool.Parse(value);
+                if (targetType == typeof(string)) return value;
+                if (targetType.IsEnum) return Enum.Parse(targetType, value);
             }
             catch { }
 
             return null;
         }
 
-        private int Comparer(object a, object b)
+        private object GetSerializedValue(SerializedProperty sp)
         {
-            if (a is int ai && b is int bi) return ai.CompareTo(bi);
-            if (a is float af && b is float bf) return af.CompareTo(bf);
-            if (a is string sa && b is string sb) return sa.CompareTo(sb);
-            if (a is bool ab && b is bool bb) return ab.CompareTo(bb);
-            if (a is string es1 && b is string es2) return es1.CompareTo(es2); // 枚举字符串
-            return 0;
+            return sp.propertyType switch
+            {
+                SerializedPropertyType.Boolean => sp.boolValue,
+                SerializedPropertyType.Integer => sp.intValue,
+                SerializedPropertyType.Float => sp.floatValue,
+                SerializedPropertyType.String => sp.stringValue,
+                SerializedPropertyType.Enum => sp.enumNames[sp.enumValueIndex],
+                _ => null
+            };
+        }
+
+        private bool CompareWithOperator(object a, object b, string op)
+        {
+            try
+            {
+                float fa = Convert.ToSingle(a);
+                float fb = Convert.ToSingle(b);
+
+                return op switch
+                {
+                    "==" => fa == fb,
+                    "!=" => fa != fb,
+                    ">" => fa > fb,
+                    "<" => fa < fb,
+                    ">=" => fa >= fb,
+                    "<=" => fa <= fb,
+                    _ => true
+                };
+            }
+            catch
+            {
+                return op switch
+                {
+                    "==" => Equals(a, b),
+                    "!=" => !Equals(a, b),
+                    _ => true
+                };
+            }
         }
     }
 }

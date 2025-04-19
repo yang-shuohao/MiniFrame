@@ -1,6 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;  // 引入 TMP_Text 相关命名空间
 using System.IO;
 using System.Text;
 using System.Linq;
@@ -68,6 +69,11 @@ namespace YSH.Framework.EditorExtensions
             foreach (var btn in selectedObj.GetComponentsInChildren<Button>(true))
                 if (btn.gameObject.name.StartsWith("btn"))
                     uiElements[btn.gameObject.name] = "Button";
+
+            // 处理 TMP_Text 组件
+            foreach (var txt in selectedObj.GetComponentsInChildren<TMP_Text>(true))
+                if (txt.gameObject.name.StartsWith("txt"))
+                    uiElements[txt.gameObject.name] = "TMP_Text";  // 添加 TMP_Text 组件
             #endregion
 
             string[] lines = File.ReadAllLines(scriptPath);
@@ -86,7 +92,7 @@ namespace YSH.Framework.EditorExtensions
                 if (line.StartsWith("public class"))
                     isInsideClass = true;
 
-                //添加字段
+                // 添加字段
                 if (isInsideClass && line == "{" && !isAddFieldCompleted)
                 {
                     newScript.AppendLine(lines[i]);
@@ -107,8 +113,8 @@ namespace YSH.Framework.EditorExtensions
                     isAddFieldCompleted = true;
                 }
 
-                //Awake
-                if(isAwakeExists && line.StartsWith("base.Awake"))
+                // Awake
+                if (isAwakeExists && line.StartsWith("base.Awake"))
                 {
                     newScript.AppendLine(lines[i]);
                     foreach (var element in uiElements)
@@ -125,12 +131,12 @@ namespace YSH.Framework.EditorExtensions
                     isOnClickExists = true;
                 }
 
-                if(isOnClickExists && line.StartsWith("switch"))
+                if (isOnClickExists && line.StartsWith("switch"))
                 {
                     isinsideOnClickSwitch = true;
                 }
 
-                //插入按钮OnClick
+                // 插入按钮 OnClick
                 if (isinsideOnClickSwitch && line == "{")
                 {
                     newScript.AppendLine(lines[i]);
@@ -146,7 +152,7 @@ namespace YSH.Framework.EditorExtensions
                     continue;
                 }
 
-                //不存在的方法直接插入
+                // 不存在的方法直接插入
                 if (i == lines.Length - 1 && !isAwakeExists)
                 {
                     newScript.AppendLine();

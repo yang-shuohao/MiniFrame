@@ -1,9 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
+
+#if USE_ADDRESSABLES
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+#endif
 
 namespace YSH.Framework
 {
@@ -13,65 +17,66 @@ namespace YSH.Framework
         Addressables,
     }
 
+#if USE_ADDRESSABLES
     public class AddressablesInfo
     {
-        //异步操作句柄
         public AsyncOperationHandle handle;
-        //引用计数
         public uint count;
+        public Type assetType;
 
-        public AddressablesInfo(AsyncOperationHandle handle)
+        public AddressablesInfo(AsyncOperationHandle handle, Type assetType)
         {
             this.handle = handle;
-            count += 1;
+            this.assetType = assetType;
+            count = 1;
         }
     }
+#endif
 
     public class ResMgr : Singleton<ResMgr>
     {
-        //默认资源加载方式
-        public ResLoadType resLoadType = ResLoadType.Addressables;
+        public ResLoadType resLoadType = ResLoadType.Resources;
 
-        #region Addressable加载
-        //保存所有加载的资产
-        public Dictionary<string, AddressablesInfo> assetDic = new Dictionary<string, AddressablesInfo>();
+#if USE_ADDRESSABLES
+        private Dictionary<string, AddressablesInfo> assetDic = new Dictionary<string, AddressablesInfo>();
 
-        //异步加载资源的方法
-        private void LoadAAAsync<T>(string assetName, Action<T> callBack)
+        private StringBuilder sb = new StringBuilder(64);
+
+        private string GetKey(string assetName, string assetTypeName)
         {
-            string keyName = assetName + "_" + typeof(T).Name;
+            sb.Clear();
+            sb.Append(assetName).Append("_").Append(assetTypeName);
 
-            // 先尝试获取已加载的资源
-            if (assetDic.TryGetValue(keyName, out AddressablesInfo info))
+            return sb.ToString();
+        }
+
+        private void LoadAAAsync<T>(string assetName, Action<T> callBack) where T : UnityEngine.Object
+        {
+            string key = GetKey(assetName, typeof(T).Name);
+
+            if (assetDic.TryGetValue(key, out AddressablesInfo info))
             {
-                // 引用计数 +1
                 info.count++;
-
                 var handle = info.handle.Convert<T>();
 
-                // 资源已加载完成，直接回调
                 if (handle.IsDone)
                 {
                     callBack?.Invoke(handle.Result);
                 }
                 else
                 {
-                    handle.Completed += obj => OnLoadCompleted(obj, keyName, callBack);
+                    handle.Completed += op => OnLoadCompleted(op, key, callBack);
                 }
             }
             else
             {
-                // 资源未加载，开始异步加载
                 var handle = Addressables.LoadAssetAsync<T>(assetName);
-                handle.Completed += obj => OnLoadCompleted(obj, keyName, callBack);
-
-                // 记录到字典
-                assetDic[keyName] = new AddressablesInfo(handle);
+                handle.Completed += op => OnLoadCompleted(op, key, callBack);
+                assetDic[key] = new AddressablesInfo(handle, typeof(T));
             }
         }
 
-        // 统一的加载完成处理
-        private void OnLoadCompleted<T>(AsyncOperationHandle<T> handle, string keyName, Action<T> callBack)
+        private void OnLoadCompleted<T>(AsyncOperationHandle<T> handle, string key, Action<T> callBack)
         {
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
@@ -79,111 +84,102 @@ namespace YSH.Framework
             }
             else
             {
-                assetDic.Remove(keyName);
-                LogMgr.Instance.LogWarning($"{keyName} 资源加载失败");
+                assetDic.Remove(key);
+                LogMgr.Instance.LogWarning($"[Addressables] Load Failed: {key}");
             }
         }
 
-        //释放资源的方法 
-        public void Release<T>(string name)
+        public void Release(string assetName, Type assetType)
         {
-            string keyName = name + "_" + typeof(T).Name;
+            string key = GetKey(assetName, assetType.Name);
 
-            // 尝试获取资源
-            if (assetDic.TryGetValue(keyName, out AddressablesInfo info))
+            if (assetDic.TryGetValue(key, out AddressablesInfo info))
             {
-                // 释放时 引用计数-1
                 info.count--;
-
-                // 如果引用计数为0 才真正的释放
-                if (info.count == 0)
+                if (info.count <= 0)
                 {
-                    // 确保资源句柄有效
                     if (info.handle.IsValid())
                     {
-                        AsyncOperationHandle<T> handle = info.handle.Convert<T>();
-                        Addressables.Release(handle);
-
-                        // 资源释放后移除字典
-                        assetDic.Remove(keyName);
+                        Addressables.Release(info.handle);
+                        assetDic.Remove(key);
                     }
                     else
                     {
-                        LogMgr.Instance.LogWarning($"{keyName} 的资源句柄无效，无法释放！");
+                        LogMgr.Instance.LogWarning($"[Addressables] Invalid handle for release: {key}");
                     }
                 }
             }
             else
             {
-                LogMgr.Instance.LogWarning($"无法找到资源 {keyName}，释放失败！");
+                LogMgr.Instance.LogWarning($"[Addressables] Release failed, key not found: {key}");
             }
         }
-        #endregion
 
+        public void Release<T>(string assetName) where T : UnityEngine.Object
+        {
+            Release(assetName, typeof(T));
+        }
+
+        public void ReleaseAll()
+        {
+            foreach (var kv in assetDic)
+            {
+                if (kv.Value.handle.IsValid())
+                {
+                    Addressables.Release(kv.Value.handle);
+                }
+            }
+            assetDic.Clear();
+        }
+
+#endif
         #region Resources加载
-        // 通用的异步加载方法
+
         private void LoadAsync<T>(string path, Action<T> callBack) where T : UnityEngine.Object
         {
             MonoMgr.Instance.StartCoroutine(LoadResourceCoroutine(path, callBack));
         }
 
-        // 协程方法，用于异步加载资源
         private IEnumerator LoadResourceCoroutine<T>(string path, Action<T> callBack) where T : UnityEngine.Object
         {
-            // 开始异步加载资源
-            ResourceRequest resourceRequest = Resources.LoadAsync<T>(path);
+            ResourceRequest req = Resources.LoadAsync<T>(path);
+            yield return req;
 
-            // 等待加载完成
-            yield return resourceRequest;
-
-            // 加载完成后获取资源
-            T loadedResource = resourceRequest.asset as T;
-
-            // 调用回调函数
-            if (callBack != null)
+            if (req.asset is T result)
             {
-                callBack(loadedResource);
+                callBack?.Invoke(result);
+            }
+            else
+            {
+                LogMgr.Instance.LogWarning($"[Resources] Load failed: {path}");
             }
         }
 
-        // 同步加载方法
         public T Load<T>(string path) where T : UnityEngine.Object
         {
-            // 同步加载资源
-            T loadedResource = Resources.Load<T>(path);
-            return loadedResource;
+            return Resources.Load<T>(path);
         }
+
         #endregion
 
-        public void LoadAssetAsync<T>(string assetName, ResLoadType resLoadType, Action<T> callBack) where T : UnityEngine.Object
+        public void LoadAssetAsync<T>(string assetName, ResLoadType type, Action<T> callBack) where T : UnityEngine.Object
         {
-            switch (resLoadType)
+            switch (type)
             {
                 case ResLoadType.Resources:
-                    LoadAsync<T>(assetName, callBack);
+                    LoadAsync(assetName, callBack);
                     break;
+#if USE_ADDRESSABLES
                 case ResLoadType.Addressables:
-                    LoadAAAsync<T>(assetName, callBack);
+                    LoadAAAsync(assetName, callBack);
                     break;
+#endif
             }
         }
 
         public void LoadAssetAsync<T>(string assetName, Action<T> callBack) where T : UnityEngine.Object
         {
             LoadAssetAsync(assetName, resLoadType, callBack);
-        }
-
-        // 释放所有资源
-        public void ReleaseAll()
-        {
-            foreach (var kvp in assetDic)
-            {
-                if (kvp.Value.handle.IsValid())
-                {
-                    Addressables.Release(kvp.Value.handle);
-                }
-            }
-            assetDic.Clear();
         }
     }
 }

@@ -6,6 +6,7 @@ using DG.Tweening;
 using YSH.Framework.Utils;
 using UnityEngine.UI;
 using YSH.Framework.Attributes;
+using System.Diagnostics;
 
 public class TestMono : MonoBehaviour
 {
@@ -27,6 +28,12 @@ public class TestMono : MonoBehaviour
     [InspectorButton("打印日志", InspectorButtonAttribute.Mode.Always)]
     private void PrintLog()
     {
-        Debug.Log("按钮点击，日志输出！");
+        UnityEngine.Debug.Log("按钮点击，日志输出！");
+    }
+
+    [Conditional("UNITY_EDITOR")]
+    public void Log(string msg)
+    {
+        UnityEngine.Debug.Log(msg);
     }
 }

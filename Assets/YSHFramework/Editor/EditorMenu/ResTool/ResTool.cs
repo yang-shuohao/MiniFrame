@@ -3,15 +3,19 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
-using UnityEditor.AddressableAssets;
 using UnityEngine;
+
+#if USE_ADDRESSABLES
+using UnityEditor.AddressableAssets;
+#endif
 
 namespace YSH.Framework.EditorExtensions
 {
-
     public class ResTool
     {
         private static readonly string ScriptFolder = "Assets/Scripts/Constants";
+
+#if USE_ADDRESSABLES
 
         /// <summary>
         /// 生成 AA 资源名
@@ -42,6 +46,7 @@ namespace YSH.Framework.EditorExtensions
 
             GenerateScript("AAResNames.cs", "AAResNames", resDict);
         }
+#endif
 
         /// <summary>
         /// 生成 Resources 资源名

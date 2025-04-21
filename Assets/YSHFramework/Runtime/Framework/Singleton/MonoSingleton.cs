@@ -5,22 +5,32 @@ namespace YSH.Framework
 {
     public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
-        protected MonoSingleton() { }
+        private static readonly object threadLock = new object();
+
+        private static bool isQuitting = false;
 
         private static T instance;
         public static T Instance
         {
             get
             {
+                if(isQuitting)
+                {
+                    return null;
+                }
+
                 if (instance == null)
                 {
                     instance = FindObjectOfType<T>();
 
-                    if (instance == null)
+                    lock(threadLock)
                     {
-                        GameObject go = new GameObject(typeof(T).Name);
-                        instance = go.AddComponent<T>();
-                        DontDestroyOnLoad(go);
+                        if (instance == null)
+                        {
+                            GameObject go = new GameObject(typeof(T).Name);
+                            instance = go.AddComponent<T>();
+                            DontDestroyOnLoad(go);
+                        }
                     }
                 }
 
@@ -28,5 +38,9 @@ namespace YSH.Framework
             }
         }
 
+        protected virtual void OnDestroy()
+        {
+            isQuitting = true;
+        }
     }
 }

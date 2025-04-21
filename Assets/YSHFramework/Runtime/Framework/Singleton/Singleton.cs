@@ -5,7 +5,7 @@ namespace YSH.Framework
     {
         protected Singleton() { }
 
-        private static readonly object locker = new object();
+        private static readonly object threadLock = new object();
 
         private static volatile T instance;
 
@@ -15,7 +15,7 @@ namespace YSH.Framework
             {
                 if (instance == null)
                 {
-                    lock (locker)
+                    lock (threadLock)
                     {
                         if (instance == null)
                         {

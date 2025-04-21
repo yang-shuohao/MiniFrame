@@ -7,6 +7,14 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
+
+/// <summary>
+/// 还不是特别适用
+/// 注意：
+/// 1、添加命名空间会生成失败
+/// 2、增加新控件再次生成可以正确添加
+/// 3、删除控件再次生成不能移除
+/// </summary>
 namespace YSH.Framework.EditorExtensions
 {
     public class UICodeGeneratorMenu
@@ -48,7 +56,10 @@ namespace YSH.Framework.EditorExtensions
                 return;
             }
 
-            InsertCodeIntoScript(scriptPath, selectedObj);
+            Dictionary<string, string> uiElements = new Dictionary<string, string>(); // 初始化字典
+            CollectUIElements(selectedObj, uiElements); // 收集 UI 元素
+
+            InsertCodeIntoScript(scriptPath, selectedObj, uiElements); // 插入代码
         }
 
         private static string FindScriptPath(string scriptName)
@@ -58,24 +69,8 @@ namespace YSH.Framework.EditorExtensions
             return AssetDatabase.GUIDToAssetPath(guids[0]);
         }
 
-        private static void InsertCodeIntoScript(string scriptPath, GameObject selectedObj)
+        private static void InsertCodeIntoScript(string scriptPath, GameObject selectedObj, Dictionary<string, string> uiElements)
         {
-            #region 收集 UI 组件
-            var uiElements = new Dictionary<string, string>(); // 变量名 -> 类型
-            foreach (var img in selectedObj.GetComponentsInChildren<Image>(true))
-                if (img.gameObject.name.StartsWith("img"))
-                    uiElements[img.gameObject.name] = "Image";
-
-            foreach (var btn in selectedObj.GetComponentsInChildren<Button>(true))
-                if (btn.gameObject.name.StartsWith("btn"))
-                    uiElements[btn.gameObject.name] = "Button";
-
-            // 处理 TMP_Text 组件
-            foreach (var txt in selectedObj.GetComponentsInChildren<TMP_Text>(true))
-                if (txt.gameObject.name.StartsWith("txt"))
-                    uiElements[txt.gameObject.name] = "TMP_Text";  // 添加 TMP_Text 组件
-            #endregion
-
             string[] lines = File.ReadAllLines(scriptPath);
             StringBuilder newScript = new StringBuilder();
 
@@ -190,6 +185,26 @@ namespace YSH.Framework.EditorExtensions
             File.WriteAllText(scriptPath, newScript.ToString());
             AssetDatabase.Refresh();
             Debug.Log($"已成功修改 {scriptPath}，插入 UI 代码！");
+        }
+
+        private static void CollectUIElements(GameObject selectedObj, Dictionary<string, string> uiElements)
+        {
+            AddUIElement<Image>(selectedObj, uiElements, "img", "Image");
+            AddUIElement<TMP_Text>(selectedObj, uiElements, "txt", "TMP_Text");
+            AddUIElement<Button>(selectedObj, uiElements, "btn", "Button");
+            AddUIElement<Toggle>(selectedObj, uiElements, "tgl", "Toggle");
+            AddUIElement<RawImage>(selectedObj, uiElements, "rimg", "RawImage");
+        }
+
+        private static void AddUIElement<T>(GameObject selectedObj, Dictionary<string, string> uiElements, string namePrefix, string controlType) where T : Component
+        {
+            foreach (var element in selectedObj.GetComponentsInChildren<T>(true))
+            {
+                if (element.gameObject.name.StartsWith(namePrefix))
+                {
+                    uiElements[element.gameObject.name] = controlType;
+                }
+            }
         }
     }
 }

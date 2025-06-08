@@ -64,7 +64,7 @@ namespace YSH.Framework
             //        break;
             //}
 
-            ResMgr.Instance.LoadAssetAsync<Sprite>(imagePath, ResMgr.Instance.resLoadType, (res) =>
+            AddressableMgr.Instance.LoadAssetAsync<Sprite>(imagePath, (res) =>
             {
                 callBack?.Invoke(res);
             });

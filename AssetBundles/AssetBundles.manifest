@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 2274181850
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: assets/bundles/triangle
+      Dependencies: {}

@@ -36,7 +36,7 @@ namespace YSH.Framework
             // 如果该音效已经在播放，则不重复播放
             if (playingSFX.Contains(audioClipName)) return;
 
-            ResMgr.Instance.LoadAssetAsync<AudioClip>(audioClipName, ResMgr.Instance.resLoadType, result =>
+            AddressableMgr.Instance.LoadAssetAsync<AudioClip>(audioClipName, result =>
             {
                 sfxSource.PlayOneShot(result);
 
@@ -78,7 +78,7 @@ namespace YSH.Framework
         /// </summary>
         public void PlayBgMusic(string name)
         {
-            ResMgr.Instance.LoadAssetAsync<AudioClip>(name, ResMgr.Instance.resLoadType, result =>
+            AddressableMgr.Instance.LoadAssetAsync<AudioClip>(name, result =>
             {
                 bgSource.clip = result;
                 bgSource.Play();

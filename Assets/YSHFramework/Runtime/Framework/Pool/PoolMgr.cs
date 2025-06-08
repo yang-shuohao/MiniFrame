@@ -36,7 +36,7 @@ namespace YSH.Framework
             else
             {
                 //创建
-                ResMgr.Instance.LoadAssetAsync<GameObject>(name, ResMgr.Instance.resLoadType, result =>
+                AddressableMgr.Instance.LoadAssetAsync<GameObject>(name, result =>
                 {
                     GameObject go = GameObject.Instantiate(result, parent, worldPositionStays);
                     go.name = name;
@@ -61,7 +61,7 @@ namespace YSH.Framework
             else
             {
                 //创建
-                ResMgr.Instance.LoadAssetAsync<GameObject>(name, ResMgr.Instance.resLoadType, result =>
+                AddressableMgr.Instance.LoadAssetAsync<GameObject>(name, result =>
                 {
                     GameObject go = GameObject.Instantiate(result, position, rotation, parent);
                     go.name = name;

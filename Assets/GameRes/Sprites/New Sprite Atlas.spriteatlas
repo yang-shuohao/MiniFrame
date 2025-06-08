@@ -38,7 +38,6 @@ SpriteAtlas:
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: ad55cb700e354a742ac314fdeff5c368, type: 3}
   - {fileID: 21300000, guid: 68bd8c130350627479938e449b6ba77c, type: 3}
   - {fileID: 21300000, guid: 56af4d043c7b7484189a10dda996e7a5, type: 3}
   - {fileID: 21300000, guid: 67346155aa9b95944849198303b1514d, type: 3}
@@ -46,7 +45,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 9fc190bc0d685734aa718a034016a66e, type: 3}
   - {fileID: 21300000, guid: bab273ef784be36459fb60e04ad13ac5, type: 3}
   m_PackedSpriteNamesToIndex:
-  - starIcon
   - blueRectNormal
   - blueRectTapped
   - blueRectInactive

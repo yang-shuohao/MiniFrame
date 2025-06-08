@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using YSH.Framework;
 
-
 public class TestPanel : BaseUI
 {
     private Image imgTest;
@@ -12,6 +11,7 @@ public class TestPanel : BaseUI
     private Button btnTest;
     private Toggle tglTest;
     private RawImage rimgTest;
+  
 
     protected override void Awake()
     {

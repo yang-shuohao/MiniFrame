@@ -147,7 +147,7 @@ namespace YSH.Framework
             else
             {
                 //加载面板
-                ResMgr.Instance.LoadAssetAsync<GameObject>(panelName, ResMgr.Instance.resLoadType, result =>
+                AddressableMgr.Instance.LoadAssetAsync<GameObject>(panelName, result =>
                 {
                     if (!panelDic.ContainsKey(panelName))
                     {

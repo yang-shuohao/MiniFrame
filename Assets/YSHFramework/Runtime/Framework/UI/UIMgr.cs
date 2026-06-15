@@ -1,258 +1,156 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using YSH.Framework.Exceptions;
-using YSH.Framework.Utils;
 
 namespace YSH.Framework
 {
     public enum UILayerType
     {
-        Bot,
-        Low,
-        Mid,
-        High,
+        Background,
+        Normal,
+        Popup,
         Top,
         System,
     }
 
-    public class UIMgr : Singleton<UIMgr>
+    public enum UICanvasType
     {
-        //保存所有面板
-        public Dictionary<string, BaseUI> panelDic = new Dictionary<string, BaseUI>();
+        Overlay,
+        Camera,
+        World
+    }
 
-        //UI的Canvas父对象
-        public RectTransform canvasRT;
-        public Canvas canvas;
-        public Transform worldCanvasTrans;
-        public Canvas worldCanvas;
+    public class UIMgr : MonoSingleton<UIMgr>
+    {
+        public EventSystem CurEventSystem { get; private set; }
+        public Camera UICamera { get; private set; }
+
+        //保存所有UI
+        private Dictionary<string, BaseUI> uiDic = new Dictionary<string, BaseUI>();
+
+        //Canvas
+        private Canvas overlayCanvas;
+        private Canvas cameraCanvas;
+        private Canvas worldCanvas;
 
         //层
-        private Transform[] canvasLayers;
-        private Transform[] worldCanvasLayers;
+        private Dictionary<UICanvasType, Transform[]> canvasLayersDic = new Dictionary<UICanvasType, Transform[]>(3);
 
-        public UIMgr()
+        private void Awake()
         {
-            InitUIObject();
-        }
+            CurEventSystem = transform.GetComponentInChildren<EventSystem>();
+            UICamera = transform.GetComponentInChildren<Camera>();
 
-        //生成UI对象
-        public void InitUIObject()
-        {
-            //创建UI根物体
-            GameObject uiObj = new GameObject("UI");
-            GameObject.DontDestroyOnLoad(uiObj);
+            overlayCanvas = transform.Find("OverlayCanvas").GetComponent<Canvas>();
+            cameraCanvas = transform.Find("CameraCanvas").GetComponent<Canvas>();
+            worldCanvas = transform.Find("WorldCanvas").GetComponent<Canvas>();
 
-            //UI摄像机
-            GameObject cameraObj = new GameObject("UICamera");
-            canvasRT = cameraObj.transform as RectTransform;
-            Camera uiCamera = cameraObj.AddComponent<Camera>();
-            uiCamera.clearFlags = CameraClearFlags.Depth;
-            uiCamera.cullingMask = LayerMask.GetMask("UI");
-            uiCamera.orthographic = true;
-            cameraObj.transform.SetParent(uiObj.transform);
-
-            //创建Canvas
-            GameObject canvasObj = new GameObject("Canvas");
-            canvasObj.layer = LayerMask.NameToLayer("UI");
-            canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            canvas.worldCamera = uiCamera;
-            if (SortingLayerUtils.IsContains("UI"))
-            {
-                canvas.sortingLayerName = "UI";
-            }
-            CanvasScaler canvasScaler = canvasObj.AddComponent<CanvasScaler>();
-            canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasScaler.referenceResolution = new Vector2(1920f, 1080f);
-            canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            canvasScaler.matchWidthOrHeight = 0f;
-            canvasObj.AddComponent<GraphicRaycaster>();
-            canvasObj.transform.SetParent(uiObj.transform);
-
-            //创建Canvas中的层
-            UILayerType[] layerTypes = (UILayerType[])System.Enum.GetValues(typeof(UILayerType));
-            canvasLayers = new Transform[layerTypes.Length];
-            for (int i = 0; i < layerTypes.Length; i++)
-            {
-                GameObject layerObj = new GameObject(layerTypes[i].ToString());
-                layerObj.layer = LayerMask.NameToLayer("UI");
-                layerObj.transform.SetParent(canvasObj.transform);
-                RectTransform layerRT = layerObj.AddComponent<RectTransform>();
-                layerRT.anchorMin = Vector2.zero;
-                layerRT.anchorMax = Vector2.one;
-                layerRT.offsetMin = Vector2.zero;
-                layerRT.offsetMax = Vector2.zero;
-                layerRT.localPosition = Vector3.zero;
-                layerRT.localScale = Vector3.one;
-                canvasLayers[i] = layerObj.transform;
-            }
-
-            //创建WorldCanvas
-            GameObject worldCanvasObj = new GameObject("WorldCanvas");
-            worldCanvasObj.layer = LayerMask.NameToLayer("UI");
-            worldCanvas = worldCanvasObj.AddComponent<Canvas>();
-            worldCanvas.renderMode = RenderMode.WorldSpace;
-            worldCanvas.worldCamera = uiCamera;
-            if (SortingLayerUtils.IsContains("WorldUI"))
-            {
-                canvas.sortingLayerName = "WorldUI";
-            }
-            worldCanvasObj.AddComponent<CanvasScaler>();
-            worldCanvasObj.AddComponent<GraphicRaycaster>();
-            worldCanvasObj.transform.SetParent(uiObj.transform);
-
-            //创建Canvas中的层
-            worldCanvasLayers = new Transform[layerTypes.Length];
-            for (int i = 0; i < layerTypes.Length; i++)
-            {
-                GameObject layerObj = new GameObject(layerTypes[i].ToString());
-                layerObj.transform.SetParent(worldCanvasObj.transform);
-                RectTransform layerRT = layerObj.AddComponent<RectTransform>();
-                layerRT.anchorMin = Vector2.zero;
-                layerRT.anchorMax = Vector2.one;
-                layerRT.offsetMin = Vector2.zero;
-                layerRT.offsetMax = Vector2.zero;
-                layerRT.localPosition = Vector3.zero;
-                layerRT.localScale = Vector3.one;
-                worldCanvasLayers[i] = layerObj.transform;
-            }
-
-            //添加EventSystem
-            GameObject eventSystemObj = new GameObject(typeof(EventSystem).Name);
-            eventSystemObj.AddComponent<EventSystem>();
-            eventSystemObj.AddComponent<StandaloneInputModule>();
-            eventSystemObj.transform.SetParent(uiObj.transform);
-
+            canvasLayersDic[UICanvasType.Overlay] = overlayCanvas.transform.GetComponentsInChildren<Transform>();
+            canvasLayersDic[UICanvasType.Camera] = cameraCanvas.transform.GetComponentsInChildren<Transform>();
+            canvasLayersDic[UICanvasType.World] = worldCanvas.transform.GetComponentsInChildren<Transform>();
         }
 
         /// <summary>
-        /// 显示面板
+        /// 显示UI
         /// </summary>
-        public void ShowPanel<T>(string panelName, UILayerType layer = UILayerType.Mid, UnityAction<T> callBack = null) where T : BaseUI
+        public void ShowUI<T>(string uiName, UICanvasType uICanvasType, UILayerType layer = UILayerType.Normal, UnityAction<T> callBack = null) where T : BaseUI
         {
-            if (panelDic.ContainsKey(panelName))
+            if (uiDic.ContainsKey(uiName))
             {
-                panelDic[panelName].transform.SetAsLastSibling();
+                uiDic[uiName].gameObject.SetActive(true);
 
-                panelDic[panelName].gameObject.SetActive(true);
+                callBack?.Invoke(uiDic[uiName] as T);
 
-                // 面板创建完成
-                callBack?.Invoke(panelDic[panelName] as T);
+                uiDic[uiName].OnOpen();
             }
             else
             {
-                //加载面板
-                AddressableMgr.Instance.LoadAssetAsync<GameObject>(panelName, result =>
+                AddressableMgr.Instance.LoadAssetAsync<GameObject>(uiName, result =>
                 {
-                    if (!panelDic.ContainsKey(panelName))
+                    if (!uiDic.ContainsKey(uiName))
                     {
-                        // 实例化对象并直接设置父物体
-                        Transform father = canvasLayers[(int)layer];
+                        Transform father = GetUILayer(uICanvasType, layer);
                         GameObject obj = GameObject.Instantiate(result, father, false);
                         obj.name = result.name;
 
-                        //得到预设体身上的面板脚本
                         T panel = obj.GetComponent<T>();
 
-                        // 面板创建完成
                         callBack?.Invoke(panel);
 
                         //把面板存起来
-                        panelDic.Add(panelName, panel);
+                        uiDic.Add(uiName, panel);
+
+                        uiDic[uiName].OnInit();
+
+                        uiDic[uiName].OnOpen();
                     }
                 });
             }
         }
 
-        /// <summary>
-        /// 销毁面板
-        /// </summary>
-        /// <param name="panelName"></param>
-        public void DestroyPanel(string panelName)
+        public Canvas GetCanvas(UICanvasType uICanvasType)
         {
-            if (panelDic.ContainsKey(panelName))
+            switch (uICanvasType)
             {
-                GameObject.Destroy(panelDic[panelName].gameObject);
-                panelDic.Remove(panelName);
+                case UICanvasType.Overlay:
+                    return overlayCanvas;
+                case UICanvasType.Camera:
+                    return cameraCanvas;
+                case UICanvasType.World:
+                    return worldCanvas;
+            }
+
+            return cameraCanvas;
+        }
+
+        public Transform GetUILayer(UICanvasType uICanvasType, UILayerType uILayerType)
+        {
+            Transform[] layers = canvasLayersDic[uICanvasType];
+
+            return layers[(int)uILayerType];
+        }
+
+        /// <summary>
+        /// 销毁UI
+        /// </summary>
+        /// <param name="uiName"></param>
+        public void DestroyUI(string uiName)
+        {
+            if (uiDic.ContainsKey(uiName))
+            {
+                uiDic[uiName].OnClose();
+                uiDic[uiName].OnDestroyUI();
+                GameObject.Destroy(uiDic[uiName].gameObject);
+                uiDic.Remove(uiName);
             }
         }
 
         /// <summary>
-        /// 隐藏面板
+        /// 隐藏UI
         /// </summary>
-        /// <param name="panelName"></param>
-        public void HidePanel(string panelName)
+        /// <param name="uiName"></param>
+        public void HideUI(string uiName)
         {
-            if (panelDic.ContainsKey(panelName))
+            if (uiDic.ContainsKey(uiName))
             {
-                panelDic[panelName].gameObject.SetActive(false);
+                uiDic[uiName].OnClose();
+                uiDic[uiName].gameObject.SetActive(false);
             }
         }
 
         /// <summary>
-        ///  隐藏所有面板
+        /// 得到UI
         /// </summary>
-        /// <param name="exceptPanels">不关闭的面板</param>
-        public void HideAllPanel(params string[] exceptPanels)
+        public T GetUI<T>(string name) where T : BaseUI
         {
-            foreach (var panel in panelDic)
+            if (uiDic.ContainsKey(name))
             {
-                if (Array.Exists(exceptPanels, name => name == panel.Key))
-                    continue;
-
-                HidePanel(panel.Key);
-            }
-        }
-
-        /// <summary>
-        /// 得到某一个已经显示的面板
-        /// </summary>
-        public T GetPanel<T>(string name) where T : BaseUI
-        {
-            if (panelDic.ContainsKey(name))
-            {
-                return panelDic[name] as T;
+                return uiDic[name] as T;
             }
 
             throw new PanelNotFoundException();
-        }
-
-        //显示普通UI
-        public void ShowUI(Transform uiTransform, UILayerType layer = UILayerType.Mid)
-        {
-            Transform father = canvasLayers[(int)layer];
-            uiTransform.SetParent(father, false);
-        }
-
-        //显示世界UI
-        public void ShowWorldUI(Transform uiTransform, UILayerType layer = UILayerType.Mid)
-        {
-            Vector3 scale = uiTransform.localScale;
-            uiTransform.SetParent(worldCanvasLayers[(int)layer], false);
-            uiTransform.localScale = scale;
-        }
-
-        /// <summary>
-        /// 给控件添加自定义事件监听
-        /// </summary>
-        public static void AddCustomEventListener(UIBehaviour control, EventTriggerType type, UnityAction<BaseEventData> callBack)
-        {
-            EventTrigger trigger = control.GetComponent<EventTrigger>();
-            if (trigger == null)
-            {
-                trigger = control.gameObject.AddComponent<EventTrigger>();
-            }
-
-            EventTrigger.Entry entry = new EventTrigger.Entry();
-            entry.eventID = type;
-            entry.callback.AddListener(callBack);
-
-            trigger.triggers.Add(entry);
         }
     }
 }

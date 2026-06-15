@@ -11,6 +11,8 @@ namespace YSH.Framework
         //存储当前UI的所有控件
         private Dictionary<string, List<UIBehaviour>> controlDic = new Dictionary<string, List<UIBehaviour>>();
 
+        #region 查找控件和处理事件
+
         protected virtual void Awake()
         {
             FindChildrenControl<Image>();         // img
@@ -79,6 +81,30 @@ namespace YSH.Framework
         /// Toggle 值改变事件
         /// </summary>
         protected virtual void OnValueChanged(string toggleName, bool value) { }
+
+        #endregion
+
+        #region 自定义方法
+        /// <summary>
+        /// 初始化调用一次
+        /// </summary>
+        public virtual void OnInit() { }
+
+        /// <summary>
+        /// 每次打开调用
+        /// </summary>
+        public virtual void OnOpen() { }
+
+        /// <summary>
+        /// 每次关闭调用
+        /// </summary>
+        public virtual void OnClose() { }
+
+        /// <summary>
+        /// 最后销毁调用一次
+        /// </summary>
+        public virtual void OnDestroyUI() { }
+        #endregion
     }
 }
 

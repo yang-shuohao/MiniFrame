@@ -1,4 +1,5 @@
 
+using Common.Message;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,21 +7,39 @@ using YSH.Framework;
 
 public class TestPanel : BaseUI
 {
-    private Image imgTest;
-    private TMP_Text txtTest;
+    private TMP_InputField inf;
     private Button btnTest;
-    private Toggle tglTest;
-    private RawImage rimgTest;
-  
 
     protected override void Awake()
     {
         base.Awake();
-        imgTest = GetControl<Image>(nameof(imgTest));
-        txtTest = GetControl<TMP_Text>(nameof(txtTest));
+        inf = GetControl<TMP_InputField>(nameof(inf));
         btnTest = GetControl<Button>(nameof(btnTest));
-        tglTest = GetControl<Toggle>(nameof(tglTest));
-        rimgTest = GetControl<RawImage>(nameof(rimgTest));
+    }
+
+    private void Start()
+    {
+        NetworkSocketMgr.Instance.Init("127.0.0.1", 8000);
+        NetworkSocketMgr.Instance.Connect();
+        NetworkSocketMgr.Instance.OnConnect += OnConnect;
+    }
+
+    private void OnConnect(int result, string reason)
+    {
+        Debug.Log("Connected to server successfully.");
+        //NetMessage netMessage = new NetMessage();
+      
+        //NetworkSocketMgr.Instance.SendMessage(netMessage);
+    }
+
+    private void OnConnectFail()
+    {
+        Debug.Log("Connected to server OnConnectFail.");
+    }
+
+    private void OnConnectClose()
+    {
+        Debug.Log("Connected to server OnConnectClose.");
     }
 
     protected override void OnClick(string btnName)

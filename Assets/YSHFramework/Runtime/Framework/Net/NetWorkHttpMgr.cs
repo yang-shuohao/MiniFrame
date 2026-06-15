@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace YSH.Framework
 {
-    public class NetWorkHttpMgr : Singleton<NetWorkHttpMgr>
+    public class NetworkHttpMgr : Singleton<NetworkHttpMgr>
     {
         public class HttpResponse
         {
